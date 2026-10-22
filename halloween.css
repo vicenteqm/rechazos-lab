@@ -1,0 +1,30 @@
+/* Identidad compartida con plantilla/diseno.css del panel SWAT INVEX. */
+:root{--bg:#100f18;--surface:#1b1926;--surface-2:#252132;--surface-3:#30293e;--border:#40364e;--text:#f7f0e7;--text-dim:#bdb2c9;--accent:#ff9a40;--green:#a9d47b;--ink:var(--text);--muted:var(--text-dim);--teal:var(--accent);--lime:var(--green);--line:var(--border);--paper:var(--bg);--white:var(--surface);--amber:#ffc369;color-scheme:dark}
+body{background:radial-gradient(ellipse at 90% 0,#38213c 0,transparent 48%),var(--bg);font-size:14px}
+header{background:#14111d;border-color:#45304c;box-shadow:0 4px 0 #0d0b1366}
+.brand{color:var(--text)}.light{color:#bdb2c9}.logo{width:29px;height:33px;font-size:0;background:transparent url('pumpkin.svg') center/contain no-repeat;border-radius:0;image-rendering:pixelated;vertical-align:middle}
+nav a{color:#bdb2c9}nav a:hover{color:#ffbc7a}.privacy{color:#a9d47b}
+.hero{position:relative;padding:32px 28px 32px 108px;margin-top:28px;margin-bottom:32px;gap:30px;background:linear-gradient(110deg,#2c1e34,#201a2b);border:1px solid #634166;box-shadow:5px 5px 0 #0d0b13;border-radius:4px}
+.hero:before{content:'';position:absolute;left:26px;top:37px;width:52px;height:58px;background:url('pumpkin.svg') center/contain no-repeat;image-rendering:pixelated}
+h1{font-size:clamp(26px,3vw,39px);letter-spacing:-.035em;line-height:1.22}h1 em{color:#ffbc7a}.intro{font-size:14px;line-height:1.75;margin-bottom:0}.eyebrow{color:#dca6e4;letter-spacing:.12em}
+.hero-note{background:#201928;border:1px solid #49344f;border-radius:4px;box-shadow:4px 4px 0 #0c0a12;padding:24px}
+.hero-note h3{color:#fff3e7;font-size:22px}.hero-note p{color:#bdb2c9}.hero-note:after{color:#ff9a4012}.pill{border-color:#875337;background:#3d2827;color:#ffc18c;border-radius:3px}.hero-note>span:last-child{color:#a9d47b}
+h2{font-size:25px}.upload,.panel,details,.metric{background:var(--surface);border-color:var(--border);border-radius:5px;box-shadow:4px 4px 0 #0c0a12}
+.upload{border-color:#4c3855;border-top:3px solid #b774c0}.upload:first-child{border-top-color:#ff9a40}.upload:last-child{border-top-color:#a9d47b}.source-number{color:#ffbc7a}
+.file-button{background:#282032;border:1px dashed #875b8f;color:#ffc18c;border-radius:3px}.file-button:hover{background:#39273a;border-color:#ff9a40}.file-entry{border-color:#40364e}.file-entry .remove{background:#35283d;color:#e5d5eb;border-radius:2px}
+.mapping summary{color:#dca6e4}details.mapping{background:#211a2c;border-color:#44344e;box-shadow:none;border-radius:3px}
+select{background:#211a2c;color:#f7f0e7;border-color:#4b3c58;border-radius:3px}select:hover{border-color:#b478bc}select option{background:#211a2c;color:#f7f0e7}
+button{background:#ff9a40;color:#231520;border:1px solid #c37a45;border-radius:3px;box-shadow:3px 3px 0 #0c0a12}button:hover{background:#ffb76d;filter:none}button:disabled{opacity:.5}
+.ghost{background:#211a2c;color:#e5d5eb;border-color:#44344e;border-radius:3px}.ghost:hover{background:#3c2b42;border-color:#b478bc}
+#status{color:#a9d47b}#error{background:#3d242f;border-color:#83465e;color:#ffabb4;border-radius:4px;box-shadow:4px 4px 0 #0c0a12}
+.empty{background:#1b192680;border-color:#634166;border-radius:4px}.empty>span{color:#ff9a40}
+.quality{background:#2b2033;border-color:#694774;color:#dfcce6;border-radius:4px;box-shadow:4px 4px 0 #0c0a12}.quality strong{color:#f5d6fb}
+.view-badge{background:#ff9a40;color:#231520;border-radius:1px;box-shadow:2px 2px 0 #0c0a12}.view-badge.second{background:#b981d0;color:#21162c}
+.metric{background:linear-gradient(145deg,#282031,#1c1925);border-color:#49374f;border-top:3px solid #b774c0}.metric.featured{background:linear-gradient(145deg,#3d2827,#231b27);border-top-color:#ff9a40;color:#fff3e7}.metric strong{color:#fff3e7}.metric.featured small,.metric.featured p{color:#d4b8bf}.metric small{color:#c4b2ce}.metric p{color:#b9acc2}
+.bar-track{background:#30263c;border-radius:1px}.bar-fill{background:#ff9a40;border-radius:1px}[data-view=b] .bar-fill{background:#b981d0}.bar.revision .bar-fill{background:#a9d47b}
+.delta{background:#2b2033;border-color:#694774}.delta h3{color:#f5d6fb}.delta>span{color:#ffc18c}.delta p:last-child{color:#d4c0dc}
+.table-wrap{background:var(--surface);scrollbar-color:#b981d0 #201a2b}table{color:var(--text)}th{background:#282032;color:#d6c2de}th,td{border-color:#32283d}tbody tr:nth-child(even){background:#1f1a2b}tbody tr:hover{background:#32273c}.check{border-color:#40364e}.check b{color:#ffc18c}
+details>summary{color:#e5d5eb}details[open]>summary{color:#ffbc7a}footer{border-color:#44334e}footer a{color:#dca6e4}
+:focus-visible{outline:2px solid #ffc369;outline-offset:4px}.file-button:focus-within{outline:2px solid #ffc369;outline-offset:3px}a{accent-color:#ff9a40}::selection{background:#694774;color:#fff3e7}
+@media(max-width:1000px){.hero{padding-left:92px;padding-right:22px;gap:22px}.hero:before{left:20px;width:46px;height:52px}.hero-note{padding:20px}}
+@media(max-width:720px){.hero{padding:87px 19px 23px;margin-top:20px;gap:22px}.hero:before{top:20px;left:21px;width:40px;height:45px}.hero-note{padding:20px}.hero-note h3{font-size:20px}h1{font-size:29px}.panel{padding:18px}.brand{font-size:12px}.logo{width:24px;height:28px;margin-right:5px}}
