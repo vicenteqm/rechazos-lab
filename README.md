@@ -76,3 +76,9 @@ Sube los archivos de este proyecto a un repositorio nuevo y activa GitHub Pages 
 SheetJS CE 0.20.3, distribuida en `vendor/xlsx.full.min.js`; licencia Apache-2.0 incluida en `vendor/LICENSE-SheetJS.txt`. Fuente oficial: https://docs.sheetjs.com/docs/getting-started/installation/standalone/ y https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js. SHA256 del archivo: `cc015130aa8521e7f088f88898eba949ccdcbfb38df0bd129b44b7273c3a6f41`.
 
 fflate 0.8.2 se usa para empaquetar el archivo Excel. Licencia MIT incluida en `vendor/LICENSE-fflate.txt`. Fuente: https://github.com/101arrowz/fflate .
+
+## Compartir un HTML sin conexión
+
+Pulsa **Exportar tablero HTML** después de construir el análisis. El archivo incluye solo las solicitudes de los filtros actuales, gráficos interactivos, detalle de motivos, filtros vinculados y CSV de resumen/revisión. No muestra ni permite cargar archivos. Se abre directamente en un navegador sin internet; no requiere los Excel originales, bibliotecas externas ni servidor. Los nombres de clientes y ejecutivos no forman parte del modelo, pero sí se incluyen folios, estatus, motivos y referencias de los archivos utilizados. Comparte el informe con quienes deban consultar esa información.
+
+El botón Limpiar filtros del mes solo amplía la consulta dentro de los datos exportados. Las cifras de calidad de archivos describen la carga original, como indica la nota del informe.

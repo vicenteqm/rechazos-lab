@@ -278,6 +278,7 @@ function renderFiles(role) {
     }
 }
 
+if (!window.RechazosShared) {
 // CARGA DE EXCEL Y CSV
 
 for (const role of ['bpi', 'records', 'agency']) {
@@ -353,6 +354,8 @@ $('clear').onclick = () => {
     );
 };
 
+}
+
 // FILTROS
 
 function optionList(id, values, label) {
@@ -369,7 +372,7 @@ function optionList(id, values, label) {
 
 function renderModel() {
     $('results').hidden = false;
-    $('empty').hidden = true;
+    if ($('empty')) $('empty').hidden = true;
     $('export').disabled = false;
 
     syncFilters('month', {month: model.months.at(-1)});
@@ -1109,23 +1112,22 @@ for (const [id, field] of [['aMonth','month'], ['aRegion','region'], ['aStore','
 }
 $('resetFilters').onclick = () => { syncFilters('month', {month: $('aMonth').value}); render(); };
 
-// CARGAR MOTOR DE ANÁLISIS
-
-const coreScript = document.createElement('script');
-coreScript.src = 'core.js?v=20261022-filtros';
-
-coreScript.onload = () => {
-    if (model) render();
-};
-
-coreScript.onerror = () => {
-    fail('No se pudo cargar el motor de análisis.');
-};
-
-document.head.append(coreScript);
-
-// CARGAR MÓDULO EXCEL
-
-const excelScript = document.createElement('script');
-excelScript.src = 'excel-ui.js?v=20261022-filtros';
-document.head.append(excelScript);
+// El informe compartido trae el motor y sus datos dentro del mismo HTML.
+if (window.RechazosShared) {
+    model = window.RechazosShared.model;
+    renderModel();
+    syncFilters('month', window.RechazosShared.filters);
+    $('scope').value = window.RechazosShared.scope;
+    render();
+} else {
+    const coreScript = document.createElement('script');
+    coreScript.src = 'core.js?v=20261022-html';
+    coreScript.onload = () => { if (model) render(); };
+    coreScript.onerror = () => fail('No se pudo cargar el motor de análisis.');
+    document.head.append(coreScript);
+    for (const source of ['excel-ui.js?v=20261022-html','html-export.js?v=20261022-html']) {
+        const script = document.createElement('script');
+        script.src = source;
+        document.head.append(script);
+    }
+}
