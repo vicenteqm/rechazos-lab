@@ -20,7 +20,7 @@
     return date(`${y}-${monthNames.indexOf(m[2])+1}-${m[1]}`);
   }
   const aliases={
-    bpi:{folio:['FOLIO','FOLIO FICO'],created:['FECHA DE CREACION','F. CREACION'],region:['REGION'],det:['DETERMINANTE','DETE'],status:['ESTATUS BANCO']},
+    bpi:{folio:['FOLIO','FOLIO FICO'],created:['FECHA DE CREACION','F. CREACION'],region:['REGION'],store:['SEDE','TIENDA','SUCURSAL'],det:['DETERMINANTE','DETE'],status:['ESTATUS BANCO']},
     records:{folio:['FOLIO FICO','FOLIO'],status:['ESTATUS FICO'],approval:['APROBACION'],process:['ESTATUS DEL PROCESO'],created:['F. CREACION','FECHA DE CREACION']},
     agency:{folio:['FOLIO','FOLIO FICO'],reason:['ESTATUS_P','RAZON AGRUPADA','MOTIVO DE RECHAZO'],status:['ESTATUS'],fico:['ESTATUS_FICO'],cut:['ARCHIVO_ULTIMO_CORTE','FECHA DE CORTE']}
   };
@@ -35,7 +35,7 @@
     for(const r of mapped(docs,'bpi')){
       if(!valid(r.folio)){report.invalidBpi++;continue;}
       const id=key(r.folio),created=date(r.created);if(!created)throw Error(`${r.source}: hay un folio numérico con fecha de creación vacía o no reconocida. Revisa la columna de fecha; se acepta ISO, día/mes/año o fecha Excel.`);
-      const b={folio:id,created,month:created.slice(0,7),region:key(r.region)||'Sin dato',det:key(r.det)||'Sin dato',status:norm(r.status)||'SIN ESTATUS'};
+      const b={folio:id,created,month:created.slice(0,7),region:key(r.region)||'Sin dato',store:norm(r.store)||'Sin tienda en BPI',det:key(r.det)||'Sin dato',status:norm(r.status)||'SIN ESTATUS'};
       if(bm.has(id)){report.duplicateBpi++;if(JSON.stringify(bm.get(id))!==JSON.stringify(b))throw Error(`El folio ${id} tiene datos BPI distintos entre archivos. Carga un solo corte por folio o concilia sus datos antes de continuar.`);}else bm.set(id,b);
     }
     if(!bm.size)throw Error('No hay folios BPI válidos para analizar.');
@@ -71,12 +71,27 @@
     return {rows,report,files:docs.map(d=>({name:d.name,role:d.role,sheet:d.sheet,rows:d.rows.length})),months:[...new Set(rows.map(r=>r.month))].sort()};
   }
   function select(rows,filters={},scope='rejects'){
-    const base=rows.filter(r=>(!filters.month||r.month===filters.month)&&(!filters.region||r.region===filters.region)&&(!filters.det||r.det===filters.det));
+    const base=rows.filter(r=>(!filters.month||r.month===filters.month)&&(!filters.region||r.region===filters.region)&&(!filters.store||r.store===filters.store)&&(!filters.det||r.det===filters.det));
     const cases=base.filter(r=>r.reject||(scope==='rejects-cancelled'&&r.cancel));
     const counts=new Map();cases.forEach(r=>counts.set(r.reason,(counts.get(r.reason)||0)+1));
     const reasons=[...counts].map(([reason,count])=>({reason,count,share:cases.length?count/cases.length:0})).sort((a,b)=>b.count-a.count||a.reason.localeCompare(b.reason));
     return {base,cases,reasons,total:cases.length,rate:base.length?cases.length/base.length:null,review:cases.filter(r=>r.flags.length),agency:cases.filter(r=>r.hasAgency).length,records:cases.filter(r=>r.hasRecords).length};
   }
-  const api={norm,key,date,cut,aliases,required,mapping,reason,build,select};
+  function facets(rows,filters={},changed='month'){
+    const months=[...new Set(rows.map(r=>r.month))].sort();
+    const selected={month:months.includes(filters.month)?filters.month:months.at(-1),region:filters.region||'',store:filters.store||'',det:filters.det||''};
+    const dims=['region','store','det'];
+    // The last changed filter wins; keep other choices only when compatible.
+    const order=dims.includes(changed)?[changed,...dims.filter(k=>k!==changed)]:dims;
+    let compatible=rows.filter(r=>r.month===selected.month);
+    for(const k of order){
+      if(selected[k]&&!compatible.some(r=>r[k]===selected[k]))selected[k]='';
+      if(selected[k])compatible=compatible.filter(r=>r[k]===selected[k]);
+    }
+    const options={month:months};
+    for(const k of dims)options[k]=[...new Set(rows.filter(r=>r.month===selected.month&&dims.every(other=>other===k||!selected[other]||r[other]===selected[other])).map(r=>r[k]))].sort((a,b)=>a.localeCompare(b,'es',{numeric:true}));
+    return {selected,options};
+  }
+  const api={norm,key,date,cut,aliases,required,mapping,reason,build,select,facets};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;root.RechazosCore=api;
 })(typeof self!=='undefined'?self:globalThis);

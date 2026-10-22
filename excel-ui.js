@@ -78,7 +78,7 @@
         status.textContent =
             'Preparando el cruce, los rankings y las tablas dinámicas…';
 
-        worker = new Worker('excel-worker.js');
+        worker = new Worker('excel-worker.js?v=20261022-filtros');
 
         // SOLO SECCIÓN A
         const options = {

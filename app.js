@@ -27,6 +27,7 @@ const fields = {
     folio: 'Folio',
     created: 'Fecha de creación',
     region: 'Región',
+    store: 'Tienda (SEDE de BPI)',
     det: 'Determinante',
     status: 'Estatus',
     approval: 'Aprobación',
@@ -37,7 +38,7 @@ const fields = {
 };
 
 const schema = {
-    bpi: ['folio', 'created', 'region', 'det', 'status'],
+    bpi: ['folio', 'created', 'region', 'store', 'det', 'status'],
     records: ['folio', 'status', 'approval', 'process', 'created'],
     agency: ['folio', 'reason', 'status', 'fico', 'cut']
 };
@@ -59,7 +60,7 @@ let busy = false;
 // LECTOR DE ARCHIVOS
 
 function startWorker() {
-    worker = new Worker('worker.js');
+    worker = new Worker('worker.js?v=20261022-filtros');
 
     worker.onmessage = ({data}) => {
         if (data.type === 'loaded') {
@@ -371,25 +372,7 @@ function renderModel() {
     $('empty').hidden = true;
     $('export').disabled = false;
 
-    const regions = [
-        ...new Set(model.rows.map(r => r.region))
-    ].sort((a, b) =>
-        a.localeCompare(b, 'es', {numeric: true})
-    );
-
-    const dets = [
-        ...new Set(model.rows.map(r => r.det))
-    ].sort((a, b) =>
-        a.localeCompare(b, 'es', {numeric: true})
-    );
-
-    optionList('aMonth', model.months, 'Todos los meses');
-    optionList('aRegion', regions, 'Todas las regiones');
-    optionList('aDet', dets, 'Todos los determinantes');
-
-    if (model.months.length) {
-        $('aMonth').value = model.months.at(-1);
-    }
+    syncFilters('month', {month: model.months.at(-1)});
 
     const r = model.report;
 
@@ -427,8 +410,22 @@ function filters(v) {
     return {
         month: $(v + 'Month').value,
         region: $(v + 'Region').value,
+        store: $(v + 'Store').value,
         det: $(v + 'Det').value
     };
+}
+
+function syncFilters(changed, initial) {
+    if (!model) return;
+    const state = RechazosCore.facets(model.rows, initial || filters('a'), changed);
+    for (const [field, suffix, label] of [['month','Month',null], ['region','Region','Todas las regiones'], ['store','Store','Todas las tiendas'], ['det','Det','Todos los determinantes']]) {
+        const el = $('a' + suffix);
+        el.replaceChildren();
+        if (label) el.add(new Option(label, ''));
+        for (const value of state.options[field]) el.add(new Option(value, value));
+        el.value = state.selected[field];
+    }
+    $('filterContext').textContent = `Mes ${state.selected.month}. ${RechazosCore.select(model.rows, state.selected).base.length.toLocaleString('es-MX')} solicitudes BPI compatibles. Tienda proviene de SEDE de BPI; si falta, se indica “Sin tienda en BPI”.`;
 }
 
 // TABLAS
@@ -895,27 +892,6 @@ function render() {
         [1, 2, 3]
     );
 
-    // EVOLUCIÓN MENSUAL
-
-    $('trend').innerHTML = table(
-        ['Mes', 'Solicitudes', 'Casos', 'Tasa'],
-        model.months.map(month => {
-            const s = RechazosCore.select(
-                model.rows,
-                {...f, month},
-                scope
-            );
-
-            return [
-                month,
-                fmt(s.base.length),
-                fmt(s.total),
-                pct(s.rate)
-            ];
-        }),
-        [1, 2, 3]
-    );
-
     // COBERTURA
 
     const checks = [
@@ -1039,6 +1015,7 @@ $('export').onclick = () => {
         'MES',
         'REGION',
         'DETERMINANTE',
+        'TIENDA',
         'ALCANCE',
         'MOTIVO',
         'CONTEO',
@@ -1057,6 +1034,7 @@ $('export').onclick = () => {
             f.month || 'Todos',
             f.region || 'Todas',
             f.det || 'Todos',
+            f.store || 'Todas',
             $('scope').value,
             r.reason,
             r.count,
@@ -1075,6 +1053,7 @@ $('export').onclick = () => {
             f.month || 'Todos',
             f.region || 'Todas',
             f.det || 'Todos',
+            f.store || 'Todas',
             $('scope').value,
             'SIN CASOS',
             0,
@@ -1124,19 +1103,16 @@ $('exportReview').onclick = () => {
 
 // EVENTOS DE FILTROS
 
-for (const id of [
-    'scope',
-    'aMonth',
-    'aRegion',
-    'aDet'
-]) {
-    $(id).onchange = render;
+$('scope').onchange = render;
+for (const [id, field] of [['aMonth','month'], ['aRegion','region'], ['aStore','store'], ['aDet','det']]) {
+    $(id).onchange = () => { syncFilters(field); render(); };
 }
+$('resetFilters').onclick = () => { syncFilters('month', {month: $('aMonth').value}); render(); };
 
 // CARGAR MOTOR DE ANÁLISIS
 
 const coreScript = document.createElement('script');
-coreScript.src = 'core.js';
+coreScript.src = 'core.js?v=20261022-filtros';
 
 coreScript.onload = () => {
     if (model) render();
@@ -1151,5 +1127,5 @@ document.head.append(coreScript);
 // CARGAR MÓDULO EXCEL
 
 const excelScript = document.createElement('script');
-excelScript.src = 'excel-ui.js';
+excelScript.src = 'excel-ui.js?v=20261022-filtros';
 document.head.append(excelScript);

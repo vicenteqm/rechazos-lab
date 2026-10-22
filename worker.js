@@ -1,5 +1,5 @@
 'use strict';
-importScripts('vendor/xlsx.full.min.js','core.js');
+importScripts('vendor/xlsx.full.min.js','core.js?v=20261022-filtros');
 const books=new Map();
 self.onmessage=async({data})=>{
   const {id,type}=data;

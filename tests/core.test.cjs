@@ -38,3 +38,13 @@ assert.equal(m.rows[0].reason,'ESTATUS DIFERENTE EN AGENCIA');
 m=build(base,[...rec,{folio:'N/A',status:'Incompleto'}]);assert.equal(m.report.invalidRecords,1);
 assert.equal(m.rows.length,4);
 console.log('PASS: fechas, llaves, tasas, filtros, canceladas, motivos, duplicados y conflictos.');
+{
+
+const rows=[{month:'2026-09',region:'1',store:'NORTE',det:'10'},{month:'2026-09',region:'2',store:'SUR',det:'20'},{month:'2026-09',region:'1',store:'CENTRO',det:'11'},{month:'2026-10',region:'3',store:'OTRA',det:'30'}];
+let s=C.facets(rows,{month:'2026-09',region:'2',store:'NORTE',det:'10'},'region');assert.deepEqual(s.selected,{month:'2026-09',region:'2',store:'',det:''});assert.deepEqual(s.options.store,['SUR']);assert.deepEqual(s.options.det,['20']);
+s=C.facets(rows,{month:'2026-09',region:'1',store:'SUR',det:'10'},'store');assert.equal(s.selected.region,'');assert.equal(s.selected.det,'');assert.deepEqual(s.options.region,['2']);
+s=C.facets(rows,{month:'2026-09',det:'11'},'det');assert.deepEqual(s.options.store,['CENTRO']);assert.deepEqual(s.options.region,['1']);assert.equal(C.select(rows,{month:'2026-09',store:'SUR'}).base.length,1);
+s=C.facets(rows,{month:'2026-10',region:'1',store:'NORTE',det:'10'},'month');assert.equal(s.selected.region,'');assert.deepEqual(s.options.det,['30']);
+assert.equal(C.mapping('bpi',['SEDE']).store,'SEDE');console.log('PASS: filtros vinculados en ambos sentidos y cambio de mes.');
+
+}

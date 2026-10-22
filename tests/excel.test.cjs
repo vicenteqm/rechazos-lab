@@ -21,3 +21,11 @@ for(const [name,m,o]of [['prueba',model,options],['seleccion_a',model,{...option
 }
 assert.throws(()=>E.build(template,model,{...options,target:'a',a:{region:'NO_EXISTE'}},F),/no tiene solicitudes/);
 console.log('PASS: seis tablas dinámicas, caché, tabla de cruce, selección A y caso sin rechazos.');
+
+const stores={...model,rows:model.rows.map((r,i)=>({...r,store:i===0?'NORTE':'SUR'}))};
+const filtered=F.unzipSync(E.build(template,stores,{...options,target:'a',a:{month:'2026-09',store:'NORTE'}},F));
+const cache=new TextDecoder().decode(filtered['xl/pivotCache/pivotCacheRecords1.xml']);
+assert.match(cache,/count="1"/);
+const source=new TextDecoder().decode(filtered['xl/worksheets/sheet8.xml']);
+assert.match(source,/TIENDA/);assert.match(source,/NORTE/);assert.doesNotMatch(source,/>SUR</);
+console.log('PASS: Excel respeta el mes y la tienda seleccionados.');

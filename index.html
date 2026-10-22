@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#100f18">
     <title>Rechazos Lab · Analítica operativa</title>
     <link rel="icon" type="image/svg+xml" href="pumpkin.svg">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20261022-filtros">
     <link rel="stylesheet" href="halloween.css">
     <link rel="stylesheet" href="visuals.css">
 </head>
@@ -58,7 +58,7 @@
                     <h2>Carga las fuentes</h2>
                     <p>
                         Puedes elegir varios archivos de cada tipo
-                        para analizar distintos meses o cortes.
+                        para elegir un mes a la vez o incorporar distintos cortes.
                     </p>
                 </div>
                 <button id="clear" class="ghost">Vaciar sesión</button>
@@ -136,7 +136,7 @@
                 <h3>Tu análisis empieza con los archivos</h3>
                 <p>
                     Elige las tres fuentes arriba. Después podrás filtrar
-                    por mes, región y determinante.
+                    un mes por región, tienda y determinante.
                 </p>
             </div>
 
@@ -178,10 +178,17 @@
                                 <select id="aRegion"></select>
                             </label>
                             <label>
+                                Tienda (SEDE)
+                                <select id="aStore"></select>
+                            </label>
+                            <label>
                                 Determinante
                                 <select id="aDet"></select>
                             </label>
                         </div>
+
+                        <p id="filterContext" class="explain" aria-live="polite"></p>
+                        <button id="resetFilters" class="ghost">Limpiar filtros del mes</button>
 
                         <div id="aMetrics" class="metrics"></div>
 
@@ -207,17 +214,7 @@
                     </section>
                 </div>
 
-                <div class="two-columns">
-                    <article class="panel">
-                        <h3>Evolución mensual</h3>
-                        <p class="explain">
-                            Conserva la región y determinante seleccionados
-                            y recorre todos los meses cargados.
-                            La tasa divide los casos entre el total BPI del mes.
-                        </p>
-                        <div id="trend" class="table-wrap"></div>
-                    </article>
-
+                <div>
                     <article class="panel">
                         <h3>Cobertura y revisión</h3>
                         <p class="explain">
@@ -324,7 +321,7 @@
         </footer>
     </main>
 
-    <script src="app.js" defer></script>
+    <script src="app.js?v=20261022-filtros" defer></script>
 </body>
 
 </html>

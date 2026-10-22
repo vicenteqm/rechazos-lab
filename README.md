@@ -1,20 +1,20 @@
 # Rechazos Lab
 
-Tablero estático para cruzar BPI, records y agencia, comparar dos selecciones y explicar cada indicador. HTML, CSS y JavaScript; no requiere servidor de datos ni npm.
+Tablero estático para cruzar BPI, records y agencia, analizar un mes a la vez y explicar cada indicador. HTML, CSS y JavaScript; no requiere servidor de datos ni npm.
 
 ## Uso
 
 1. Abre la dirección publicada en GitHub Pages.
-2. Selecciona uno o varios Excel/CSV de BPI, records y agencia. Debes cargar las tres fuentes. Usa BPI de los periodos que quieras comparar y records de esos mismos periodos.
+2. Selecciona uno o varios Excel/CSV de BPI, records y agencia. Debes cargar las tres fuentes. Usa BPI y records del mes que quieras analizar.
 3. Revisa la hoja detectada y, si hace falta, ajusta las columnas en “Revisar columnas detectadas”.
-4. Pulsa “Construir análisis”. Elige mes, región y determinante por separado para A y B.
-5. Descarga el resumen agregado o la revisión por folio de la selección A. Vaciar sesión elimina los datos de memoria; recargar requiere volver a cargar las fuentes.
+4. Pulsa “Construir análisis”. Elige un mes, región, tienda y determinante. Los filtros se restringen entre sí; el último cambio tiene prioridad y limpia selecciones incompatibles. “Limpiar filtros del mes” conserva el mes y restablece las demás opciones. La tienda se obtiene de SEDE, TIENDA o SUCURSAL en BPI.
+5. Descarga el resumen agregado o la revisión por folio de la vista filtrada. Vaciar sesión elimina los datos de memoria; recargar requiere volver a cargar las fuentes.
 
 Puedes agregar archivos después del primer análisis; vuelve a construir para incorporarlos. El tablero no guarda archivos en GitHub, localStorage ni una base de datos. La lectura de Excel se ejecuta en un Web Worker para no bloquear la interfaz. Google Fonts es opcional para la tipografía y no recibe el contenido de los archivos.
 
 ## Exportar un Excel para compartir
 
-Después de construir el análisis, usa **Exportar Excel con tablas dinámicas**. Puedes elegir todo el cruce cargado o solo las solicitudes de la selección A o B. Se respeta el alcance de rechazos o rechazos y canceladas elegido en el tablero.
+Después de construir el análisis, usa **Exportar Excel con tablas dinámicas**. Puedes elegir todo el cruce cargado o solo las solicitudes de la vista filtrada o B. Se respeta el alcance de rechazos o rechazos y canceladas elegido en el tablero.
 
 El archivo contiene:
 
@@ -22,7 +22,7 @@ El archivo contiene:
 - **TD_Mayor / TD_Menor:** tablas dinámicas nativas con todas las causas de mayor a menor y de menor a mayor.
 - **TD_Regiones, TD_Determinantes, TD_Meses y TD_Estatus:** tablas dinámicas para analizar los casos desde diferentes dimensiones.
 - **Cruce:** una tabla Excel con todos los folios BPI exportados, las coincidencias con records y agencia, el motivo agrupado y original, el archivo de agencia, el corte y las alertas. La columna INCLUIR marca los casos del alcance seleccionado.
-- **Guia:** selección exportada, periodos, filtros A/B, metodología y archivos de origen.
+- **Guia:** selección exportada, periodos, región, tienda y determinante, metodología y archivos de origen.
 
 En Excel puedes reorganizar los campos de cada tabla dinámica. Después de editar Cruce, usa **Datos > Actualizar todo**. Las fórmulas del resumen se recalculan desde el cruce; para regenerar el orden de su ranking vuelve a exportar o vuelve a ordenarlo. Conserva el filtro INCLUIR = Sí para reproducir los casos del tablero. Cambiar el alcance entre rechazos y canceladas requiere volver a exportar desde el tablero.
 
