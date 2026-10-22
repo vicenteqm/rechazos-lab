@@ -1,0 +1,9 @@
+node_modules/
+__pycache__/
+*.xlsx
+*.xls
+*.csv
+inputs/
+outputs/
+*.log
+!tests/fixtures/*.csv
