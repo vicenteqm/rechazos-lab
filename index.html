@@ -4,8 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description"
-        content="Cruza BPI, records y agencia; compara periodos y entiende los motivos de rechazo.">
+    <meta name="description" content="Análisis de rechazos BPI, Records y Agencia.">
     <meta name="theme-color" content="#100f18">
     <title>Rechazos Lab · Analítica operativa</title>
     <link rel="icon" type="image/svg+xml" href="pumpkin.svg">
@@ -15,83 +14,152 @@
 </head>
 
 <body>
-    <header><a class="brand" href="./"><span class="logo">↗</span> RECHAZOS<span class="light"> / LAB</span></a>
-        <nav><a href="#fuentes">Fuentes</a><a href="#analisis">Análisis</a><a href="#metodologia">Cómo se calcula</a>
-        </nav><span class="privacy">● Procesamiento en tu navegador</span>
+    <header>
+        <a class="brand" href="./">
+            <span class="logo">↗</span>
+            RECHAZOS<span class="light"> / LAB</span>
+        </a>
+        <nav>
+            <a href="#fuentes">Fuentes</a>
+            <a href="#analisis">Análisis</a>
+            <a href="#metodologia">Cómo se calcula</a>
+        </nav>
+        <span class="privacy">● Procesamiento en tu navegador</span>
     </header>
+
     <main>
         <section class="hero">
             <div>
                 <p class="eyebrow">BPI · RECORDS · AGENCIA</p>
-                <h1>Entiende el rechazo.<br><em>Encuentra dónde actuar.</em></h1>
-                <p class="intro">Cruza tus archivos por folio, identifica los motivos y compara resultados con el
-                    contexto detrás de cada cifra.</p>
+                <h1>Entiende el rechazo.<br>
+                    <em>Encuentra dónde actuar.</em>
+                </h1>
+                <p class="intro">
+                    Cruza tus archivos por folio, identifica los motivos
+                    y analiza resultados con el contexto detrás de cada cifra.
+                </p>
             </div>
-            <aside class="hero-note"><span class="pill">TU MESA DE ANÁLISIS</span>
+
+            <aside class="hero-note">
+                <span class="pill">TU MESA DE ANÁLISIS</span>
                 <h3>Tres fuentes.<br>Una lectura completa.</h3>
-                <p>BPI define el universo. Records contrasta el proceso. Agencia aporta el motivo específico.</p>
-                <span>01 / Carga &nbsp; 02 / Cruce &nbsp; 03 / Compara</span>
+                <p>
+                    BPI define el universo. Records contrasta el proceso.
+                    Agencia aporta el motivo específico.
+                </p>
+                <span>01 / Carga &nbsp; 02 / Cruce &nbsp; 03 / Analiza</span>
             </aside>
         </section>
+
         <section id="fuentes">
             <div class="section-title">
                 <div>
                     <p class="eyebrow">01 — PREPARA TU INFORMACIÓN</p>
                     <h2>Carga las fuentes</h2>
-                    <p>Puedes elegir varios archivos de cada tipo para analizar distintos meses o cortes.</p>
-                </div><button id="clear" class="ghost">Vaciar sesión</button>
+                    <p>
+                        Puedes elegir varios archivos de cada tipo
+                        para analizar distintos meses o cortes.
+                    </p>
+                </div>
+                <button id="clear" class="ghost">Vaciar sesión</button>
             </div>
+
             <div class="uploads">
-                <article class="upload"><span class="source-number">01</span>
+                <article class="upload">
+                    <span class="source-number">01</span>
                     <h3>BPI</h3>
-                    <p>Universo de solicitudes, región, determinante y estatus del banco.</p><label
-                        class="file-button">Seleccionar Excel o CSV<input type="file" id="bpi" multiple
-                            accept=".xlsx,.xls,.csv"></label>
+                    <p>Universo de solicitudes, región, determinante y estatus del banco.</p>
+                    <label class="file-button">
+                        Seleccionar Excel o CSV
+                        <input type="file" id="bpi" multiple accept=".xlsx,.xls,.csv">
+                    </label>
                     <div id="bpiFiles" class="file-list"></div>
                 </article>
-                <article class="upload"><span class="source-number">02</span>
+
+                <article class="upload">
+                    <span class="source-number">02</span>
                     <h3>Records</h3>
-                    <p>Reporte del proceso para contrastar el estatus de cada folio.</p><label
-                        class="file-button">Seleccionar Excel o CSV<input type="file" id="records" multiple
-                            accept=".xlsx,.xls,.csv"></label>
+                    <p>Reporte del proceso para contrastar el estatus de cada folio.</p>
+                    <label class="file-button">
+                        Seleccionar Excel o CSV
+                        <input type="file" id="records" multiple accept=".xlsx,.xls,.csv">
+                    </label>
                     <div id="recordsFiles" class="file-list"></div>
                 </article>
-                <article class="upload"><span class="source-number">03</span>
+
+                <article class="upload">
+                    <span class="source-number">03</span>
                     <h3>Agencia</h3>
-                    <p>Motivo de rechazo y estatus del último corte disponible.</p><label
-                        class="file-button">Seleccionar Excel o CSV<input type="file" id="agency" multiple
-                            accept=".xlsx,.xls,.csv"></label>
+                    <p>Motivo de rechazo y estatus del último corte disponible.</p>
+                    <label class="file-button">
+                        Seleccionar Excel o CSV
+                        <input type="file" id="agency" multiple accept=".xlsx,.xls,.csv">
+                    </label>
                     <div id="agencyFiles" class="file-list"></div>
                 </article>
             </div>
+
             <div class="runbar">
-                <p><strong>Los archivos se quedan contigo.</strong> Se leen en memoria; al recargar la página tendrás
-                    que cargarlos de nuevo.</p><button id="analyze" disabled>Construir análisis <span>↗</span></button>
+                <p>
+                    <strong>Los archivos se quedan contigo.</strong>
+                    Se leen en memoria; al recargar la página tendrás
+                    que cargarlos de nuevo.
+                </p>
+                <button id="analyze" disabled>
+                    Construir análisis <span>↗</span>
+                </button>
             </div>
-            <p id="status" role="status" aria-live="polite">Carga BPI, records y agencia para comenzar.</p>
+
+            <p id="status" role="status" aria-live="polite">
+                Carga BPI, records y agencia para comenzar.
+            </p>
             <div id="error" role="alert" hidden></div>
         </section>
+
         <section id="analisis">
             <div class="section-title">
                 <div>
-                    <p class="eyebrow">02 — EXPLORA Y COMPARA</p>
+                    <p class="eyebrow">02 — EXPLORA TUS RESULTADOS</p>
                     <h2>El panorama, con contexto</h2>
-                    <p>Todos los indicadores responden a la selección. Cada porcentaje muestra su base.</p>
-                </div><button id="export" class="ghost" disabled>↓ Exportar resumen CSV</button>
+                    <p>
+                        Todos los indicadores responden a los filtros seleccionados.
+                        Cada porcentaje muestra su base.
+                    </p>
+                </div>
+                <button id="export" class="ghost" disabled>
+                    ↓ Exportar resumen CSV
+                </button>
             </div>
-            <div id="empty" class="empty"><span>↗</span>
+
+            <div id="empty" class="empty">
+                <span>↗</span>
                 <h3>Tu análisis empieza con los archivos</h3>
-                <p>Elige las tres fuentes arriba. Después podrás filtrar por mes, región y determinante, y comparar dos
-                    vistas.</p>
+                <p>
+                    Elige las tres fuentes arriba. Después podrás filtrar
+                    por mes, región y determinante.
+                </p>
             </div>
+
             <div id="results" hidden>
                 <div id="quality" class="quality"></div>
-                <div class="scope"><label>Qué analizar<select id="scope">
-                            <option value="rejects">Rechazos BPI (incluye PF y CE)</option>
-                            <option value="rejects-cancelled">Rechazos y canceladas BPI</option>
-                        </select></label>
-                    <p>El universo siempre son los folios únicos de BPI. Records y agencia enriquecen esos folios; no
-                        agregan solicitudes a la base.</p>
+
+                <div class="scope">
+                    <label>
+                        Qué analizar
+                        <select id="scope">
+                            <option value="rejects">
+                                Rechazos BPI (incluye PF y CE)
+                            </option>
+                            <option value="rejects-cancelled">
+                                Rechazos y canceladas BPI
+                            </option>
+                        </select>
+                    </label>
+                    <p>
+                        El universo siempre son los folios únicos de BPI.
+                        Records y agencia enriquecen esos folios;
+                        no agregan solicitudes a la base.
+                    </p>
                 </div>
 
                 <div class="single-view">
@@ -121,9 +189,8 @@
                             <h3>¿Qué motivos concentran los casos?</h3>
                             <p class="explain">
                                 Participación sobre los rechazos o canceladas
-                                de esta selección.
-                                Los pendientes de revisión también cuentan
-                                para que el total concilie.
+                                de esta selección. Los pendientes de revisión
+                                también cuentan, para que el total concilie.
                             </p>
                             <div id="aReasons"></div>
                         </article>
@@ -131,94 +198,132 @@
                         <article class="panel">
                             <h3>¿Dónde se concentran?</h3>
                             <p class="explain">
-                                Las 8 regiones con más casos.
-                                La tasa utiliza todas las solicitudes BPI
-                                de cada región.
+                                Las 8 regiones con más casos. La tasa usa
+                                todas las solicitudes BPI de cada región;
+                                el volumen por sí solo no mide desempeño.
                             </p>
-                            <div id="aRegions"></div>
+                            <div id="aRegions" class="table-wrap"></div>
                         </article>
                     </section>
                 </div>
 
                 <div class="two-columns">
                     <article class="panel">
-                        <h3>Evolución mensual · selección A</h3>
-                        <p class="explain">Conserva la región y determinante de A, y recorre todos los meses cargados.
-                            La tasa divide los casos entre el total BPI del mes.</p>
+                        <h3>Evolución mensual</h3>
+                        <p class="explain">
+                            Conserva la región y determinante seleccionados
+                            y recorre todos los meses cargados.
+                            La tasa divide los casos entre el total BPI del mes.
+                        </p>
                         <div id="trend" class="table-wrap"></div>
                     </article>
+
                     <article class="panel">
-                        <h3>Cobertura y revisión · selección A</h3>
-                        <p class="explain">La cobertura indica si encontramos el folio, aunque la fuente no tenga
-                            motivo. Las alertas pueden coincidir en un mismo folio.</p>
+                        <h3>Cobertura y revisión</h3>
+                        <p class="explain">
+                            La cobertura indica si encontramos el folio,
+                            aunque la fuente no tenga motivo.
+                            Las alertas pueden coincidir en un mismo folio.
+                        </p>
                         <div id="checks"></div>
                     </article>
                 </div>
-                <article class="panel">
-                    <p class="explain">Diferencia de participación = porcentaje de A menos porcentaje de B, en puntos
-                        porcentuales. Describe la mezcla de motivos; no demuestra una causa del cambio.</p>
-                </article>
+
                 <article class="panel">
                     <div class="section-title">
                         <div>
-                            <h3>Casos para revisar · selección A</h3>
-                            <p class="explain">Hasta 100 folios. Sin nombres de clientes ni ejecutivos. El archivo de
-                                revisión incluye todos los casos con alerta de esta selección.</p>
-                        </div><button id="exportReview" class="ghost">↓ CSV de revisión</button>
+                            <h3>Casos para revisar</h3>
+                            <p class="explain">
+                                Hasta 100 folios. Sin nombres de clientes
+                                ni ejecutivos. El archivo de revisión incluye
+                                todos los casos con alerta de la selección.
+                            </p>
+                        </div>
+                        <button id="exportReview" class="ghost">
+                            ↓ CSV de revisión
+                        </button>
                     </div>
                     <div id="review" class="table-wrap"></div>
                 </article>
             </div>
         </section>
+
         <section id="metodologia">
             <p class="eyebrow">03 — LA EXPLICACIÓN DETRÁS DEL DATO</p>
             <h2>Qué significa cada cosa</h2>
+
             <div class="guide-grid">
                 <details open>
                     <summary>¿Por qué cruzamos por folio?</summary>
-                    <p>El folio identifica una solicitud en las tres fuentes. Se normalizan espacios, apóstrofos y el
-                        sufijo decimal “.0”; no se cruzan nombres. Los folios no numéricos se excluyen y se reportan.
+                    <p>
+                        El folio identifica una solicitud en las tres fuentes.
+                        Se normalizan espacios, apóstrofos y el sufijo decimal
+                        “.0”; no se cruzan nombres. Los folios no numéricos
+                        se excluyen y se reportan.
                     </p>
                 </details>
+
                 <details open>
                     <summary>¿Qué consideramos un rechazo?</summary>
-                    <p>Por defecto, ESTATUS BANCO de BPI comienza con RECHAZO: incluye RECHAZO, RECHAZO PF y RECHAZO CE.
-                        Puedes incluir canceladas mediante el selector; esa vista muestra una tasa combinada, no una
-                        tasa pura de rechazo.</p>
-                </details>
-                <details>
-                    <summary>¿De dónde viene el motivo?</summary>
-                    <p>De Estatus_P de agencia. Normalizamos variantes como “Nivel Riesgo” y “Rechazo por Nivel de
-                        Riesgo”. Si no hay motivo, hay estatus de aprobación o el folio sigue en proceso, mostramos una
-                        categoría de revisión. Records se usa como contraste; “Aprobada Cancelada” no se transforma en
-                        un motivo de riesgo.</p>
-                </details>
-                <details>
-                    <summary>¿Qué pasa con las repeticiones?</summary>
-                    <p>BPI cuenta cada folio una vez. Si un folio tiene distintas fechas, regiones, determinantes o
-                        estatus en los BPI cargados, se detiene el análisis para resolver la diferencia. En records
-                        conservamos los estatus distintos y marcamos la discrepancia. En agencia usamos el último corte
-                        fechado; si no se puede determinar o hay datos distintos en la misma fecha, marcamos conflicto.
+                    <p>
+                        Por defecto, ESTATUS BANCO de BPI comienza con RECHAZO:
+                        incluye RECHAZO, RECHAZO PF y RECHAZO CE.
+                        Puedes incluir canceladas mediante el selector;
+                        esa vista muestra una tasa combinada.
                     </p>
                 </details>
+
+                <details>
+                    <summary>¿De dónde viene el motivo?</summary>
+                    <p>
+                        De Estatus_P de agencia. Normalizamos variantes como
+                        “Nivel Riesgo” y “Rechazo por Nivel de Riesgo”.
+                        Si no hay motivo, hay estatus de aprobación o el folio
+                        sigue en proceso, mostramos una categoría de revisión.
+                        Records se usa como contraste.
+                    </p>
+                </details>
+
+                <details>
+                    <summary>¿Qué pasa con las repeticiones?</summary>
+                    <p>
+                        BPI cuenta cada folio una vez. Si un folio tiene distintas
+                        fechas, regiones, determinantes o estatus en los BPI
+                        cargados, se detiene el análisis para resolver la diferencia.
+                        En records conservamos los estatus distintos.
+                        En agencia usamos el último corte fechado.
+                    </p>
+                </details>
+
                 <details>
                     <summary>¿El corte es del mes o el más reciente?</summary>
-                    <p>El mes se define por FECHA DE CREACIÓN de BPI. El motivo usa el último corte disponible de
-                        agencia, aunque sea de otro mes. Analizar septiembre con un corte de octubre describe la cohorte
-                        de septiembre al corte disponible; no reconstruye el cierre histórico del 30 de septiembre.</p>
+                    <p>
+                        El mes se define por FECHA DE CREACIÓN de BPI.
+                        El motivo usa el último corte disponible de agencia,
+                        aunque sea de otro mes. No reconstruye automáticamente
+                        un cierre histórico.
+                    </p>
                 </details>
+
                 <details>
-                    <summary>¿Cómo interpretar las tasas y los cambios?</summary>
-                    <p>Tasa = casos seleccionados / solicitudes BPI con los mismos filtros. Participación = casos de un
-                        motivo / todos los casos de la selección. Un cambio de 20% a 25% equivale a 5 puntos
-                        porcentuales. Las diferencias pueden depender del corte, volumen y composición; el tablero no
-                        atribuye causas automáticamente.</p>
+                    <summary>¿Cómo interpretar las tasas?</summary>
+                    <p>
+                        Tasa = casos seleccionados / solicitudes BPI
+                        con los mismos filtros.
+                        Participación = casos de un motivo /
+                        todos los casos de la selección.
+                    </p>
                 </details>
             </div>
         </section>
-        <footer><span class="brand">RECHAZOS / LAB</span><span>Archivos locales · Sin almacenamiento de
-                solicitudes</span><a href="README.md">Guía del proyecto ↗</a></footer>
+
+        <footer>
+            <span class="brand">RECHAZOS / LAB</span>
+            <span>Archivos locales · Sin almacenamiento de solicitudes</span>
+            <a href="README.md">Guía del proyecto ↗</a>
+        </footer>
     </main>
+
     <script src="app.js" defer></script>
 </body>
 
