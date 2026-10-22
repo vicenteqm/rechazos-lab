@@ -12,7 +12,23 @@ Tablero estático para cruzar BPI, records y agencia, comparar dos selecciones y
 
 Puedes agregar archivos después del primer análisis; vuelve a construir para incorporarlos. El tablero no guarda archivos en GitHub, localStorage ni una base de datos. La lectura de Excel se ejecuta en un Web Worker para no bloquear la interfaz. Google Fonts es opcional para la tipografía y no recibe el contenido de los archivos.
 
-## Columnas
+## Exportar un Excel para compartir
+
+Después de construir el análisis, usa **Exportar Excel con tablas dinámicas**. Puedes elegir todo el cruce cargado o solo las solicitudes de la selección A o B. Se respeta el alcance de rechazos o rechazos y canceladas elegido en el tablero.
+
+El archivo contiene:
+
+- **Resumen:** solicitudes, casos, tasa, revisión y hasta diez causas por cada extremo de frecuencia.
+- **TD_Mayor / TD_Menor:** tablas dinámicas nativas con todas las causas de mayor a menor y de menor a mayor.
+- **TD_Regiones, TD_Determinantes, TD_Meses y TD_Estatus:** tablas dinámicas para analizar los casos desde diferentes dimensiones.
+- **Cruce:** una tabla Excel con todos los folios BPI exportados, las coincidencias con records y agencia, el motivo agrupado y original, el archivo de agencia, el corte y las alertas. La columna INCLUIR marca los casos del alcance seleccionado.
+- **Guia:** selección exportada, periodos, filtros A/B, metodología y archivos de origen.
+
+En Excel puedes reorganizar los campos de cada tabla dinámica. Después de editar Cruce, usa **Datos > Actualizar todo**. Las fórmulas del resumen se recalculan desde el cruce; para regenerar el orden de su ranking vuelve a exportar o vuelve a ordenarlo. Conserva el filtro INCLUIR = Sí para reproducir los casos del tablero. Cambiar el alcance entre rechazos y canceladas requiere volver a exportar desde el tablero.
+
+La exportación se genera en tu navegador con una plantilla diseñada con Artifact Tool y piezas nativas de Open XML. No usa macros, conexiones externas ni servicios de subida. Incluye folios y estatus, pero no nombres de clientes o ejecutivos.
+
+### Columnas de entrada
 
 | Fuente | Obligatorias | Opcionales |
 |---|---|---|
@@ -58,3 +74,5 @@ Sube los archivos de este proyecto a un repositorio nuevo y activa GitHub Pages 
 ## Dependencia
 
 SheetJS CE 0.20.3, distribuida en `vendor/xlsx.full.min.js`; licencia Apache-2.0 incluida en `vendor/LICENSE-SheetJS.txt`. Fuente oficial: https://docs.sheetjs.com/docs/getting-started/installation/standalone/ y https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js. SHA256 del archivo: `cc015130aa8521e7f088f88898eba949ccdcbfb38df0bd129b44b7273c3a6f41`.
+
+fflate 0.8.2 se usa para empaquetar el archivo Excel. Licencia MIT incluida en `vendor/LICENSE-fflate.txt`. Fuente: https://github.com/101arrowz/fflate .

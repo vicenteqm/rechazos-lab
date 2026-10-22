@@ -23,7 +23,7 @@ function startWorker(){
 function status(text){$('status').textContent=text;}
 function fail(text){$('error').hidden=false;$('error').textContent=text;status('Revisa el aviso antes de continuar.');}
 function buttons(){const enabled=['bpi','records','agency'].every(role=>docs.some(d=>d.role===role));$('analyze').disabled=!enabled||!!pending||busy;$('analyze').textContent=busy?'Cruzando archivos…':'Construir análisis ↗';for(const role of ['bpi','records','agency'])$(role).disabled=busy;$('clear').disabled=busy;document.querySelectorAll('.file-entry select,.file-entry button').forEach(el=>el.disabled=busy);}
-function invalidate(){model=null;$('results').hidden=true;$('empty').hidden=false;$('export').disabled=true;$('error').hidden=true;}
+function invalidate(){model=null;$('results').hidden=true;$('empty').hidden=false;$('export').disabled=true;$('error').hidden=true;document.dispatchEvent(new CustomEvent('rechazos:reset'));}
 function renderFiles(role){
   const root=$(role+'Files');root.replaceChildren();
   for(const doc of docs.filter(d=>d.role===role)){
@@ -117,6 +117,7 @@ function render(){
   const checks=[['Con coincidencia en records',`${fmt(a.records)} / ${fmt(a.total)} · ${pct(a.total?a.records/a.total:null)}`],['Con coincidencia en agencia',`${fmt(a.agency)} / ${fmt(a.total)} · ${pct(a.total?a.agency/a.total:null)}`],['Sin motivo en agencia',fmt(a.cases.filter(r=>r.reason==='SIN MOTIVO EN AGENCIA').length)],['Conflictos entre cortes agencia',fmt(a.cases.filter(r=>r.reason==='CONFLICTO ENTRE CORTES').length)],['Records con estatus distintos',fmt(a.cases.filter(r=>r.flags.includes('Records con estatus distintos')).length)],['Agencia reporta otro estatus',fmt(a.cases.filter(r=>['ESTATUS DIFERENTE EN AGENCIA','EN PROCESO EN AGENCIA'].includes(r.reason)).length)]];
   $('checks').innerHTML=checks.map(([k,v])=>`<div class="check"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('');
   $('review').innerHTML=table(['Folio','BPI','Records','Agencia / motivo','Alerta'],a.review.slice(0,100).map(r=>[r.folio,r.status,r.records,r.agencyReason,r.flags.join('; ')]));
+  document.dispatchEvent(new CustomEvent('rechazos:render',{detail:{model,options:{a:filters('a'),b:filters('b'),scope}}}));
 }
 function csvCell(value){let s=String(value??'');if(/^[=+@\-\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
 function download(name,rows){const blob=new Blob(['\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
@@ -124,3 +125,4 @@ $('export').onclick=()=>{if(!model)return;const rows=[['VISTA','MES','REGION','D
 $('exportReview').onclick=()=>{if(!model)return;download('revision-rechazos-seleccion-a.csv',[['FOLIO','MES','REGION','DETERMINANTE','ESTATUS_BPI','ESTATUS_RECORDS','ESTATUS_AGENCIA','MOTIVO_AGENCIA','CORTE','ALERTAS'],...views.a.review.map(r=>[r.folio,r.month,r.region,r.det,r.status,r.records,r.agency,r.agencyReason,r.cutText,r.flags.join('; ')])]);};
 for(const id of ['scope','aMonth','aRegion','aDet','bMonth','bRegion','bDet'])$(id).onchange=render;
 const coreScript=document.createElement('script');coreScript.src='core.js';coreScript.onload=()=>{if(model)render();};coreScript.onerror=()=>fail('No se pudo cargar el motor de análisis.');document.head.append(coreScript);
+const excelScript=document.createElement('script');excelScript.src='excel-ui.js';document.head.append(excelScript);
