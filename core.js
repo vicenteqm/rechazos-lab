@@ -48,7 +48,7 @@
     for(const r of mapped(docs,'agency')){
       if(!valid(r.folio)){report.invalidAgency++;continue;}
       const id=key(r.folio);if(!am.has(id))am.set(id,[]);else report.duplicateAgency++;
-      am.get(id).push({reason:reason(r.reason),status:norm(r.status),fico:norm(r.fico),cut:cut(r.cut,defaultYear),cutText:String(r.cut||r.source)});
+      am.get(id).push({reason:reason(r.reason),rawReason:String(r.reason??''),source:r.source,status:norm(r.status),fico:norm(r.fico),cut:cut(r.cut,defaultYear),cutText:String(r.cut||r.source)});
     }
     const rows=[];
     for(const b of bm.values()){
@@ -65,7 +65,7 @@
       else grouped=a.reason;
       if(!rec.length)flags.push('Sin coincidencia en records');
       if(rec.length>1){flags.push('Records con estatus distintos');report.recordsConflicts++;}
-      rows.push({...b,reason:grouped,hasAgency:!!ag.length,hasRecords:!!rec.length,records:rec.map(r=>r.status||'Sin estatus').join(' | '),agency:a?.status||'',agencyReason:agencyConflict?'CONFLICTO':a?.reason||'',cut:a?.cut||'',cutText:a?.cutText||'',flags,
+      rows.push({...b,reason:grouped,hasAgency:!!ag.length,hasRecords:!!rec.length,records:rec.map(r=>r.status||'Sin estatus').join(' | '),agency:a?.status||'',agencyReason:agencyConflict?'CONFLICTO':a?.reason||'',agencyRawReason:agencyConflict?'':a?.rawReason||'',agencySources:[...new Set(candidates.map(a=>a.source))],cut:a?.cut||'',cutText:a?.cutText||'',flags,
         reject:b.status.startsWith('RECHAZO'),cancel:b.status.startsWith('CANCELADA')||b.status.startsWith('CANCELADO')});
     }
     return {rows,report,files:docs.map(d=>({name:d.name,role:d.role,sheet:d.sheet,rows:d.rows.length})),months:[...new Set(rows.map(r=>r.month))].sort()};

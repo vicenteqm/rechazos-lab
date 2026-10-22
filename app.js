@@ -59,14 +59,50 @@ function renderModel(){
 function filters(v){return {month:$(v+'Month').value,region:$(v+'Region').value,det:$(v+'Det').value};}
 function table(headers,rows,numeric=[]){return `<table><thead><tr>${headers.map((h,i)=>`<th${numeric.includes(i)?' class="num"':''}>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(row=>'<tr>'+row.map((c,i)=>`<td${numeric.includes(i)?' class="num"':''}>${esc(c)}</td>`).join('')+'</tr>').join(''):`<tr><td colspan="${headers.length}">Sin resultados para esta selección.</td></tr>`}</tbody></table>`;}
 function metric(label,value,description,featured=false){return `<div class="metric ${featured?'featured':''}"><small>${esc(label)}</small><strong>${esc(value)}</strong><p>${esc(description)}</p></div>`;}
-function bars(items,total){if(!items.length)return '<p class="chart-note">Sin casos para esta selección. Prueba otros filtros.</p>';const shown=items.slice(0,8),max=Math.max(...shown.map(r=>r.count),1);return shown.map(r=>`<div class="bar ${/SIN |CONFLICTO|DIFERENTE|EN PROCESO/.test(r.reason)?'revision':''}"><div class="bar-top"><span>${esc(r.reason)}</span><b>${fmt(r.count)} · ${pct(total?r.count/total:0)}</b></div><div class="bar-track"><div class="bar-fill" style="width:${r.count/max*100}%"></div></div></div>`).join('')+`<p class="chart-note">${shown.length} de ${items.length} categorías. Longitud relativa al motivo de mayor volumen; porcentaje sobre ${fmt(total)} casos. ${items.length>8?'La tabla comparativa incluye todos los motivos.':''}</p>`;}
+function bars(items,total,view){
+  if(!items.length)return '<p class="chart-note">Sin casos para esta selección. Prueba otros filtros.</p>';
+  const max=Math.max(...items.map(r=>r.count),1);
+  return `<div class="ranking">${items.map((r,i)=>`<button type="button" class="cause-bar ${/SIN |CONFLICTO|DIFERENTE|EN PROCESO/.test(r.reason)?'revision':''}" data-cause="${esc(r.reason)}" data-view="${view}" aria-label="Ver origen de ${esc(r.reason)}, ${fmt(r.count)} casos"><span class="rank-number">${String(i+1).padStart(2,'0')}</span><span class="rank-body"><span class="bar-top"><span>${esc(r.reason)}</span><b>${fmt(r.count)} <small>${pct(total?r.count/total:0)}</small></b></span><span class="bar-track"><span class="bar-fill" style="width:${r.count/max*100}%"></span></span></span><span class="rank-arrow" aria-hidden="true">↗</span></button>`).join('')}</div><p class="chart-note">${items.length} causas, de mayor a menor. Haz clic en una barra para ver su origen y dónde se concentra.</p><div id="${view}CauseDetail" class="cause-detail" hidden></div>`;
+}
+const palette=['#ff9a40','#b981d0','#a9d47b','#ffc369','#f58c96','#75bcc4'];
+function composition(s){
+  if(!s.total)return '';
+  const top=s.reasons.slice(0,5),other=s.total-top.reduce((n,r)=>n+r.count,0),parts=[...top,...(other?[{reason:'Otras causas',count:other}]:[])];
+  let start=0;const radius=66,circ=2*Math.PI*radius;
+  const arcs=parts.map((r,i)=>{const len=r.count/s.total*circ;const svg=`<circle cx="90" cy="90" r="${radius}" fill="none" stroke="${palette[i]}" stroke-width="23" stroke-dasharray="${len} ${circ-len}" stroke-dashoffset="${-start}"/>`;start+=len;return svg;}).join('');
+  const top3=s.reasons.slice(0,3),concentration=top3.reduce((n,r)=>n+r.count,0);
+  return `<div class="cause-takeaway"><span class="eyebrow">LO QUE MÁS PESA</span><strong>${esc(s.reasons[0].reason)}</strong><p><b>${fmt(s.reasons[0].count)}</b> casos · ${pct(s.reasons[0].share)} de la selección. Las ${top3.length} causas principales reúnen <b>${pct(concentration/s.total)}</b> de los casos.</p></div><div class="composition"><svg viewBox="0 0 180 180" role="img" aria-label="Distribución de ${fmt(s.total)} casos por motivo"><g transform="rotate(-90 90 90)">${arcs}</g><text x="90" y="87" text-anchor="middle" class="donut-total">${fmt(s.total)}</text><text x="90" y="106" text-anchor="middle" class="donut-label">CASOS</text></svg><div class="donut-legend">${parts.map((r,i)=>`<div><span class="legend-dot" style="background:${palette[i]}"></span><span>${esc(r.reason)}</span><b>${pct(r.count/s.total)}</b></div>`).join('')}</div></div><div class="ranking-heading"><span>RANKING COMPLETO</span><span>CASOS · % DEL TOTAL</span></div>`;
+}
+function showCause(view,reason){
+  const s=views[view],rows=s.cases.filter(r=>r.reason===reason),target=$(view+'CauseDetail');if(!rows.length)return;
+  const count=new Map();for(const r of rows)count.set(r.region,(count.get(r.region)||0)+1);
+  const regions=[...count].sort((a,b)=>b[1]-a[1]).slice(0,5),max=regions[0]?.[1]||1;
+  const names=[...new Set(rows.flatMap(r=>r.agencySources||[]))];
+  const originals=new Map();rows.forEach(r=>{const raw=r.agencyRawReason||'(sin motivo disponible)';originals.set(raw,(originals.get(raw)||0)+1);});
+  const explanation={
+    'SIN TDC':'La agencia etiquetó la solicitud como “Sin TDC”. El tablero conserva esa clasificación; no deduce la existencia de una tarjeta a partir de otros datos.',
+    'NIVEL DE RIESGO':'Agrupa las etiquetas “Rechazo por Nivel de Riesgo” y “Nivel Riesgo” de agencia. El archivo no detalla qué regla interna produjo la clasificación.',
+    'DUPLICIDAD':'La fuente de agencia reporta “Duplicidad”. Es una razón de rechazo de la fuente, distinta de las filas repetidas que el tablero consolida al cargar archivos.',
+    'GRUPO DE MATRICES':'Agrupa las variantes de “Rechazo por Grupo de Matrices” de agencia. El tablero no dispone del detalle de la regla interna del banco.',
+    'LÍMITE DE CRÉDITO':'Proviene de “Limite De Credito Menor A Producto” en agencia. Se presenta bajo un nombre corto para facilitar la lectura.',
+    'SIN MOTIVO EN AGENCIA':'El folio existe en agencia, pero Estatus_P está vacío. Es un pendiente de información; no es una causa crediticia confirmada.',
+    'SIN COINCIDENCIA EN AGENCIA':'BPI marca rechazo, pero el folio no se encontró en los archivos de agencia cargados. Se requiere otro corte o revisar el identificador.',
+    'ESTATUS DIFERENTE EN AGENCIA':'BPI marca rechazo o cancelación y agencia reporta una aprobación. Se conserva como discrepancia de fuentes; no se inventa un motivo.',
+    'EN PROCESO EN AGENCIA':'BPI marca rechazo o cancelación y agencia todavía reporta “En proceso”. Puede reflejar diferencias de corte.',
+    'CONFLICTO ENTRE CORTES':'Hay motivos o estatus distintos en agencia y no puede elegirse un corte único de forma fiable. El caso necesita revisión.'
+  }[reason]||'Esta etiqueta proviene de Estatus_P de agencia, normalizada para agrupar diferencias de escritura. El archivo aporta la clasificación, pero no necesariamente el detalle de la decisión del banco.';
+  target.hidden=false;target.innerHTML=`<div class="detail-head"><span class="eyebrow">ORIGEN DE LA CAUSA</span><button type="button" class="ghost" data-close-cause="${view}" aria-label="Cerrar detalle de causa">×</button></div><h4>${esc(reason)}</h4><p>${esc(explanation)}</p><div class="source-flow"><div><b>1 · BPI</b><span>ESTATUS BANCO</span><small>Define los casos incluidos</small></div><span aria-hidden="true">→</span><div><b>2 · FOLIO</b><span>Cruce de fuentes</span><small>Una solicitud, un conteo</small></div><span aria-hidden="true">→</span><div><b>3 · AGENCIA</b><span>Estatus_P</span><small>Aporta el motivo</small></div></div><p class="detail-note"><b>Records:</b> ${fmt(rows.filter(r=>r.hasRecords).length)} de ${fmt(rows.length)} folios encontrados. Contrasta el estatus, no determina esta causa.</p><p class="detail-note"><b>Archivo(s) de agencia:</b> ${names.length?names.map(esc).join(' · '):'Sin coincidencia disponible.'}</p><h5>Texto original en Estatus_P</h5>${table(['Etiqueta original','Casos'],[...originals].sort((a,b)=>b[1]-a[1]).map(([r,n])=>[r,fmt(n)]),[1])}<h5>¿De dónde vienen estos casos?</h5><p class="detail-note">Región de BPI · las 5 regiones con más casos de esta causa.</p>${regions.map(([reg,n])=>`<div class="region-cause"><span>Región ${esc(reg)}</span><div class="bar-track"><span class="bar-fill" style="width:${n/max*100}%"></span></div><b>${fmt(n)} · ${pct(n/rows.length)}</b></div>`).join('')}<p class="detail-note">${fmt(rows.length)} casos en la selección ${view.toUpperCase()}. El motivo refleja el último corte disponible de agencia, que puede ser posterior al mes analizado.</p>`;
+  document.querySelectorAll(`[data-view="${view}"][data-cause]`).forEach(b=>{const active=b.dataset.cause===reason;b.setAttribute('aria-pressed',active?'true':'false');if(active)b.after(target);});
+  target.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+document.addEventListener('click',event=>{const cause=event.target.closest('[data-cause]');if(cause){showCause(cause.dataset.view,cause.dataset.cause);return;}const close=event.target.closest('[data-close-cause]');if(close)$(close.dataset.closeCause+'CauseDetail').hidden=true;});
 function render(){
   if(!model||!window.RechazosCore)return;
   const scope=$('scope').value;
   for(const v of ['a','b']){
     const f=filters(v),s=RechazosCore.select(model.rows,f,scope);views[v]=s;
     $(v+'Metrics').innerHTML=metric('Solicitudes BPI',fmt(s.base.length),'Folios únicos con los filtros de esta vista.')+metric(scope==='rejects'?'Rechazos BPI':'Rechazos y canceladas',fmt(s.total),'Un folio cuenta una sola vez.',true)+metric(scope==='rejects'?'Tasa de rechazo':'Tasa combinada',pct(s.rate),`${fmt(s.total)} casos / ${fmt(s.base.length)} solicitudes BPI.`)+metric('Casos para revisión',fmt(s.review.length),`${pct(s.total?s.review.length/s.total:null)} de los casos tiene al menos una alerta.`);
-    $(v+'Reasons').innerHTML=bars(s.reasons,s.total);
+    $(v+'Reasons').innerHTML=composition(s)+bars(s.reasons,s.total,v);
     const regions=new Map();for(const r of s.base){if(!regions.has(r.region))regions.set(r.region,{base:0,count:0});regions.get(r.region).base++;}for(const r of s.cases)regions.get(r.region).count++;
     $(v+'Regions').innerHTML=table(['Región','Casos','Solicitudes','Tasa'],[...regions].filter(([,r])=>r.count).sort((a,b)=>b[1].count-a[1].count).slice(0,8).map(([reg,r])=>[reg,fmt(r.count),fmt(r.base),pct(r.count/r.base)]),[1,2,3]);
   }

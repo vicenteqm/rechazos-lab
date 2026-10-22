@@ -15,6 +15,8 @@ assert.equal(C.key("'1001.0"),'1001');
 assert.equal(C.cut('AGENCIA_17_SEPTEIMBRE.xlsx','2026'),'2026-09-17');
 assert.equal(C.cut('AGENCIA_20_OCTUBRE_2025.xlsx','2026'),'2025-10-20');
 const model=build();let s=C.select(model.rows,{month:'2026-09'});
+assert.equal(model.rows[0].agencyRawReason,'Rechazo por Nivel de Riesgo');
+assert.deepEqual(model.rows[0].agencySources,['agency']);
 assert.equal(s.base.length,2);assert.equal(s.total,1);assert.equal(s.rate,.5);assert.equal(s.reasons[0].share,1);
 assert.equal(C.select(model.rows,{region:'2'},'rejects-cancelled').total,2);
 assert.equal(C.select(model.rows,{region:'NO_EXISTE'}).rate,null);
