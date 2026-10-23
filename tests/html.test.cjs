@@ -23,6 +23,11 @@ context.window = context; context.self = context;
 vm.createContext(context); vm.runInContext(scripts[0][1], context);
 const data = context.RechazosShared;
 assert.ok(data.model.rows.length);
+if (process.argv[3]) {
+    const expected=JSON.parse(process.argv[3]);
+    for(const [key,value] of Object.entries(expected))assert.equal(data.filters[key],value);
+    assert.ok(data.model.rows.every(row=>context.RechazosCore.matches(row,expected)));
+}
 assert.equal(nodes.get('results').hidden, false);
 assert.match(nodes.get('aMetrics').innerHTML, /Solicitudes BPI/);
 assert.match(nodes.get('aReasons').innerHTML, /composition|Sin casos/);
