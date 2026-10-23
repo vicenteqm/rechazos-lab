@@ -19,7 +19,7 @@
         try {
             const paths = ['index.html','styles.css','halloween.css','visuals.css','pumpkin.svg','core.js','app.js'];
             const parts = await Promise.all(paths.map(async path => {
-                const response = await fetch(path + '?v=20261022-html');
+                const response = await fetch(path + '?v=20261023-busqueda');
                 if (!response.ok) throw Error('No se pudo leer ' + path);
                 return response.text();
             }));

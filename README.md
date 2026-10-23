@@ -44,7 +44,7 @@ La fecha de modificación identifica la versión del archivo, pero **no prueba q
 
 Selecciona un mes. Región, tienda, determinante, team leader, líder SWAT, sublíder, promotor/capturista, puesto, ejecutivas RH/CPRO/enlace banco y validación de identidad se restringen entre sí. El último filtro cambiado tiene prioridad; los incompatibles se limpian. **Limpiar filtros** conserva el mes y restablece los demás.
 
-El Excel exporta solo las solicitudes de la vista actual. Incluye Cruce con 33 campos, Resumen, Guia y seis tablas dinámicas reales: causas de mayor y menor frecuencia, regiones, determinantes, meses y estatus. En Excel usa **Datos > Actualizar todo** después de editar el cruce. Conserva INCLUIR = Sí para reproducir los casos.
+El Excel exporta solo las solicitudes de la vista actual. Incluye Cruce con 34 campos, Resumen, Guia y seis tablas dinámicas reales: causas de mayor y menor frecuencia, regiones, determinantes, meses y estatus. En Excel usa **Datos > Actualizar todo** después de editar el cruce. Conserva INCLUIR = Sí para reproducir los casos.
 
 El HTML autónomo incluye únicamente los folios de la selección actual, con gráficos, detalle de motivos y filtros. Funciona sin internet y no permite cargar archivos. Puede contener nombres de responsables y capturistas y sus estatus; se comparte manualmente con los destinatarios que correspondan. El código de publicación nunca incluye ese HTML descargado.
 
@@ -72,3 +72,9 @@ El servidor escucha únicamente en 127.0.0.1. Cierra o reinicia el equipo normal
 `automation/config.json` permite habilitar `publish.enabled` con el destino autorizado vicenteqm/rechazos-lab. Después de cada cruce correcto, el actualizador publica un modelo JSON comprimido, version.json y un estado de publicación correcto en una sola confirmación de Git. Usa la sesión GitHub guardada por Git en Windows; nunca escribe credenciales en archivos del proyecto. Si falla la publicación, reintenta en la siguiente revisión aunque no hayan cambiado las fuentes. `.private/publicacion.json` registra la última versión enviada.
 
 La página se actualiza después del despliegue de GitHub Pages, que puede tardar unos minutos. El equipo actualizador necesita estar encendido, con sesión iniciada e internet para publicar cambios. El enlace permanece consultable cuando ese equipo está apagado y muestra la última versión publicada.
+
+## Capacitadoras y búsqueda
+
+CRISTAL: 3, 4.1, 4.2, 4.3, 4.4, 21 (y subregiones) y 23. KEYLA: 8.1, 8.2, 8.3, 11, 15.1, 15.2 y 19; la región agrupada 15 también corresponde a KEYLA. ESTEFANI: 1, 2, 13.1, 13.2, 20 y 22 (ambas con sus subregiones). Otras regiones, incluida 8.4, quedan sin capacitadora asignada. La asignación se deriva de la región vigente de la solicitud.
+
+La búsqueda combina palabras parciales sin distinguir acentos ni mayúsculas sobre folio, determinante, tienda, nombres de promotores y responsables, capacitadora, puesto, estatus y motivos. Se aplica junto a los filtros activos: una búsqueda sin coincidencias conserva esos filtros y muestra cero resultados. Los nombres de clientes no forman parte del modelo. Excel, CSV y HTML respetan capacitadora y búsqueda; Limpiar filtros restablece ambos y conserva el mes.

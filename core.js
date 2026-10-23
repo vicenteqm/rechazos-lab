@@ -70,9 +70,25 @@
     }
     return {rows,report,files:docs.map(d=>({name:d.name,role:d.role,sheet:d.sheet,rows:d.rows.length})),months:[...new Set(rows.map(r=>r.month))].sort()};
   }
-  const filterKeys=['region','store','det','teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch'];
+  function trainerForRegion(region){
+    const r=norm(region).replace(/^REGION\s*/, '').replace(/,/g,'.');
+    if (['3','4.1','4.2','4.3','4.4','23'].includes(r)||/^21(?:\.|$)/.test(r)) return 'CRISTAL';
+    if (['8.1','8.2','8.3','11','15','15.1','15.2','19'].includes(r)) return 'KEYLA';
+    if (['1','2','13.1','13.2'].includes(r)||/^(20|22)(?:\.|$)/.test(r)) return 'ESTEFANI';
+    return 'Sin capacitadora asignada';
+  }
+  const fieldValue=(row,key)=>key==='trainer'?trainerForRegion(row.region):row[key];
+  const searchable=['folio','det','store','region','promoter','teamLeader','swatLeader','subleader','rh','cpro','bankLink','employeeRole','status','records','agency','reason','agencyRawReason','attendanceMatch'];
+  const searchCache=new WeakMap();let previousQuery=null,queryTokens=[];
+  function searchMatches(row,query=''){
+    if(query!==previousQuery){previousQuery=query;queryTokens=norm(query).split(/\s+/).filter(Boolean);}
+    if(!queryTokens.length)return true;
+    if(!searchCache.has(row))searchCache.set(row,norm([...searchable.map(k=>row[k]||''),trainerForRegion(row.region)].join(' ')));
+    const haystack=searchCache.get(row);return queryTokens.every(token=>haystack.includes(token));
+  }
+  const filterKeys=['trainer','region','store','det','teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch'];
   function matches(row,filters={},except='') {
-    return (!filters.month||row.month===filters.month)&&filterKeys.every(k=>k===except||!filters[k]||row[k]===filters[k]);
+    return (!filters.month||row.month===filters.month)&&searchMatches(row,filters.q)&&filterKeys.every(k=>k===except||!filters[k]||fieldValue(row,k)===filters[k]);
   }
   function select(rows,filters={},scope='rejects'){
     const base=rows.filter(r=>matches(r,filters));
@@ -84,17 +100,18 @@
   function facets(rows,filters={},changed='month'){
     const months=[...new Set(rows.map(r=>r.month))].sort();
     const dims=filterKeys.filter(k=>['region','store','det'].includes(k)||rows.some(r=>r[k]!==undefined)||Object.hasOwn(filters,k));
-    const selected={month:months.includes(filters.month)?filters.month:months.at(-1),...Object.fromEntries(dims.map(k=>[k,filters[k]||'']))};
+    const selected={month:months.includes(filters.month)?filters.month:months.at(-1),...Object.fromEntries(dims.map(k=>[k,filters[k]||''])),...(Object.hasOwn(filters,'q')?{q:filters.q||''}:{})};
     const order=dims.includes(changed)?[changed,...dims.filter(k=>k!==changed)]:dims;
     let compatible=rows.filter(r=>r.month===selected.month);
     for(const k of order){
-      if(selected[k]&&!compatible.some(r=>r[k]===selected[k]))selected[k]='';
-      if(selected[k])compatible=compatible.filter(r=>r[k]===selected[k]);
+      if(selected[k]&&!compatible.some(r=>fieldValue(r,k)===selected[k]))selected[k]='';
+      if(selected[k])compatible=compatible.filter(r=>fieldValue(r,k)===selected[k]);
     }
     const options={month:months};
-    for(const k of dims)options[k]=[...new Set(rows.filter(r=>matches(r,selected,k)).map(r=>r[k]).filter(v=>v!==undefined&&v!==null&&v!==''))].sort((a,b)=>a.localeCompare(b,'es',{numeric:true}));
+    for(const k of dims)options[k]=[...new Set(rows.filter(r=>matches(r,selected,k)).map(r=>fieldValue(r,k)).filter(v=>v!==undefined&&v!==null&&v!==''))].sort((a,b)=>a.localeCompare(b,'es',{numeric:true}));
+    for(const k of dims)if(selected[k]&&!options[k].includes(selected[k]))options[k].push(selected[k]);
     return {selected,options};
   }
-  const api={norm,key,date,cut,aliases,required,mapping,reason,build,select,facets,matches,filterKeys};
+  const api={norm,key,date,cut,aliases,required,mapping,reason,build,select,facets,matches,filterKeys,trainerForRegion,fieldValue,searchMatches};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;root.RechazosCore=api;
 })(typeof self!=='undefined'?self:globalThis);

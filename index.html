@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#100f18">
     <title>Rechazos Lab · Analítica operativa</title>
     <link rel="icon" type="image/svg+xml" href="pumpkin.svg">
-    <link rel="stylesheet" href="styles.css?v=20261022-filtros">
+    <link rel="stylesheet" href="styles.css?v=20261023-busqueda">
     <link rel="stylesheet" href="halloween.css">
     <link rel="stylesheet" href="visuals.css">
 </head>
@@ -111,6 +111,7 @@
                         </div>
 
                         <div class="filters">
+                            <label>Capacitadora<select id="aTrainer"></select></label>
                             <label>
                                 Mes
                                 <select id="aMonth"></select>
@@ -138,10 +139,18 @@
                             <label>Validación de identidad<select id="aAttendanceMatch"></select></label>
                         </div>
 
+                        <label class="search-label" for="aSearch">Buscar en la selección</label>
+                        <input id="aSearch" type="search" placeholder="Folio, promotor, tienda, determinante, responsable o motivo…" autocomplete="off" aria-describedby="searchHelp">
+                        <p id="searchHelp" class="explain">Busca coincidencias parciales, sin distinguir mayúsculas ni acentos, dentro del mes y los filtros activos. Los nombres corresponden a promotores y responsables del tablero.</p>
                         <p id="filterContext" class="explain" aria-live="polite"></p>
                         <button id="resetFilters" type="button" title="Restablecer todos los filtros del mes seleccionado">↺ Limpiar filtros</button>
 
                         <div id="aMetrics" class="metrics"></div>
+                        <article id="searchResultsPanel" class="panel" hidden>
+                            <h3>Coincidencias de la búsqueda</h3>
+                            <p class="explain">Hasta 100 solicitudes del mes y filtros activos, incluidas las que no son rechazos. Los gráficos conservan el alcance seleccionado.</p>
+                            <div id="searchResults" class="table-wrap"></div>
+                        </article>
 
                         <article class="panel">
                             <h3>¿Qué motivos concentran los casos?</h3>
@@ -273,9 +282,9 @@
     </main>
 
     <script>window.RechazosFolder = true;</script>
-    <script src="core.js?v=20261022-publico" defer></script>
-    <script src="folder-ui.js?v=20261022-publico" defer></script>
-    <script src="app.js?v=20261022-publico" defer></script>
+    <script src="core.js?v=20261023-busqueda" defer></script>
+    <script src="folder-ui.js?v=20261023-busqueda" defer></script>
+    <script src="app.js?v=20261023-busqueda" defer></script>
 </body>
 
 </html>

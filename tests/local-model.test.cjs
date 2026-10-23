@@ -8,8 +8,8 @@ const promoter=filtered.base.find(r=>r.attendanceMatch==='Coincidencia exacta').
 const opts={month:'2026-10',rh,promoter};const chosen=C.select(model.rows,opts);assert.ok(chosen.base.length);assert.ok(chosen.base.every(r=>r.rh===rh&&r.promoter===promoter));
 const bytes=E.build(fs.readFileSync(path.join(__dirname,'../assets/export-template.xlsx')),model,{target:'a',a:opts,scope:'rejects'},F);
 const zip=F.unzipSync(bytes),xml=name=>new TextDecoder().decode(zip[name]);
-assert.match(xml('xl/tables/table1.xml'),/ref="A1:AG\d+"/);assert.match(xml('xl/tables/table1.xml'),/name="PROMOTOR"/);assert.match(xml('xl/pivotCache/pivotCacheRecords1.xml'),new RegExp('count="'+chosen.base.length+'"'));
+assert.match(xml('xl/tables/table1.xml'),/ref="A1:AH\d+"/);assert.match(xml('xl/tables/table1.xml'),/name="PROMOTOR"/);assert.match(xml('xl/pivotCache/pivotCacheRecords1.xml'),new RegExp('count="'+chosen.base.length+'"'));
 assert.ok(!JSON.stringify(model.rows[0]).includes('Nombre del cliente'));
 fs.mkdirSync(path.join(__dirname,'../../outputs/rechazos_local'),{recursive:true});fs.writeFileSync(path.join(__dirname,'../../outputs/rechazos_local/validacion-responsable.xlsx'),bytes);
 console.log(JSON.stringify({base:model.rows.length,selectedCases:chosen.total,selectedBase:chosen.base.length,exact:model.enrichment.totals.employeesMatched,unvalidated:model.enrichment.totals.employeesUnmatched}));
-console.log('PASS: meses, filtros RH/promotor, unicidad de folios y Excel con 33 columnas y seis tablas dinámicas.');
+console.log('PASS: meses, filtros RH/promotor, unicidad de folios y Excel con 34 columnas y seis tablas dinámicas.');

@@ -375,7 +375,7 @@ function renderModel() {
     if ($('empty')) $('empty').hidden = true;
     $('export').disabled = false;
 
-    syncFilters('month', {month: model.months.at(-1)});
+    syncFilters('month', {month: model.months.at(-1),trainer:''});
 
     const r = model.report;
 
@@ -410,17 +410,18 @@ function renderModel() {
 }
 
 const filterDefinitions = [
-    ['month','Month',null],['region','Region','Todas las regiones'],['store','Store','Todas las tiendas'],['det','Det','Todos los determinantes'],
+    ['month','Month',null],['trainer','Trainer','Todas las capacitadoras'],['region','Region','Todas las regiones'],['store','Store','Todas las tiendas'],['det','Det','Todos los determinantes'],
     ['teamLeader','TeamLeader','Todos los team leaders'],['swatLeader','SwatLeader','Todos los líderes SWAT'],['subleader','Subleader','Todos los sublíderes'],
     ['promoter','Promoter','Todos los promotores / capturistas'],['employeeRole','EmployeeRole','Todos los puestos'],['rh','Rh','Todas las ejecutivas RH'],
     ['cpro','Cpro','Todas las ejecutivas CPRO'],['bankLink','BankLink','Todas las ejecutivas enlace banco'],['attendanceMatch','AttendanceMatch','Todas las coincidencias']
 ];
 function filters(v) {
-    return Object.fromEntries(filterDefinitions.filter(([,suffix])=>$(v+suffix)).map(([field,suffix])=>[field,$(v+suffix).value]));
+    return {...Object.fromEntries(filterDefinitions.filter(([,suffix])=>$(v+suffix)).map(([field,suffix])=>[field,$(v+suffix).value])),...($('aSearch')?{q:$('aSearch').value}:{})};
 }
 function syncFilters(changed, initial) {
     if (!model) return;
     const state = RechazosCore.facets(model.rows, initial || filters('a'), changed);
+    if ($('aSearch')) $('aSearch').value=state.selected.q || '';
     for (const [field,suffix,label] of filterDefinitions) {
         const el = $('a' + suffix);
         if (!el) continue;
@@ -827,6 +828,10 @@ function render() {
     const a = RechazosCore.select(model.rows, f, scope);
 
     views = {a};
+    if ($('searchResultsPanel')) {
+        $('searchResultsPanel').hidden = !f.q?.trim();
+        $('searchResults').innerHTML = table(['Folio','Promotor / capturista','Tienda','Capacitadora','Estatus BPI','Motivo / referencia'],a.base.slice(0,100).map(r=>[r.folio,r.promoter||'Sin dato',r.store,RechazosCore.trainerForRegion(r.region),r.status,r.reason]));
+    }
     if (model.automation) {
         const validated = a.base.filter(r=>r.attendanceMatch==='Coincidencia exacta').length;
         $('filterContext').textContent = `Mes ${f.month}. ${fmt(a.base.length)} solicitudes compatibles: ${fmt(validated)} con capturista validado y ${fmt(a.base.length-validated)} sin validar o con identidad ambigua. Responsables de la base vigente; asistencia del mes y determinante. Los casos sin validar permanecen en los totales.`;
@@ -1024,6 +1029,7 @@ $('export').onclick = () => {
         'REGION',
         'DETERMINANTE',
         'TIENDA',
+        'CAPACITADORA','BUSQUEDA',
         'TEAM_LEADER','LIDER_SWAT','SUBLIDER','PROMOTOR','PUESTO','RH','CPRO','ENLACE_BANCO','CRUCE_ASISTENCIA',
         'ALCANCE',
         'MOTIVO',
@@ -1044,6 +1050,7 @@ $('export').onclick = () => {
             f.region || 'Todas',
             f.det || 'Todos',
             f.store || 'Todas',
+            f.trainer || 'Todas',f.q || '',
             ...['teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch'].map(k=>f[k]||'Todos'),
             $('scope').value,
             r.reason,
@@ -1064,6 +1071,7 @@ $('export').onclick = () => {
             f.region || 'Todas',
             f.det || 'Todos',
             f.store || 'Todas',
+            f.trainer || 'Todas',f.q || '',
             ...['teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch'].map(k=>f[k]||'Todos'),
             $('scope').value,
             'SIN CASOS',
@@ -1119,7 +1127,9 @@ for (const [field,suffix] of filterDefinitions) {
     const control = $('a'+suffix);
     if (control) control.onchange = () => { syncFilters(field); render(); };
 }
-$('resetFilters').onclick = () => { syncFilters('month', {month: $('aMonth').value}); render(); };
+let searchTimer;
+if ($('aSearch')) $('aSearch').oninput = () => { clearTimeout(searchTimer); searchTimer=setTimeout(()=>{syncFilters('q');render();},180); };
+$('resetFilters').onclick = () => { clearTimeout(searchTimer); syncFilters('month', {month: $('aMonth').value,trainer:'',q:''}); render(); };
 
 // El informe compartido trae el motor y sus datos dentro del mismo HTML.
 if (window.RechazosShared) {

@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),C=require('../core.js'),E=require('../excel-export.js'),F=require('../vendor/fflate.js');
+for(const region of ['3','4.1','4.2','4.3','4.4','21','21.1','21.2','23'])assert.equal(C.trainerForRegion(region),'CRISTAL');
+for(const region of ['8.1','8.2','8.3','11','15','15.1','15.2','19'])assert.equal(C.trainerForRegion(region),'KEYLA');
+for(const region of ['1','2','13.1','13.2','20','20.1','20.2','22','22.1','22.2','22.3'])assert.equal(C.trainerForRegion(region),'ESTEFANI');
+assert.equal(C.trainerForRegion('8.4'),'Sin capacitadora asignada');assert.equal(C.trainerForRegion('REGIÓN 21.2'),'CRISTAL');assert.equal(C.trainerForRegion('210'),'Sin capacitadora asignada');
+const row=(folio,region,promoter)=>({folio,region,promoter,month:'2026-09',created:'2026-09-01',det:'10',store:'WM CENTRO',status:'RECHAZO',reason:'SIN TDC',records:'DECLINADO',agency:'RECHAZADO',flags:[],reject:true,cancel:false,hasAgency:true,hasRecords:true});
+const rows=[row('1001','21.2','JOSÉ PÉREZ'),row('1002','8.1','JOSÉ PÉREZ'),row('1003','22.3','MARÍA LÓPEZ')];
+assert.deepEqual(C.select(rows,{trainer:'CRISTAL',q:'jose centro'}).base.map(r=>r.folio),['1001']);
+assert.equal(C.select(rows,{q:'1002'}).base.length,1);assert.equal(C.select(rows,{q:'[no existe]'}).base.length,0);
+let facet=C.facets(rows,{month:'2026-09',trainer:'CRISTAL',region:'21.2',q:'maria'},'q');assert.equal(facet.selected.trainer,'CRISTAL');assert.equal(facet.selected.region,'21.2');assert.equal(C.select(rows,facet.selected).base.length,0);
+facet=C.facets(rows,{month:'2026-09',trainer:'CRISTAL',q:'jose'},'trainer');assert.deepEqual(facet.options.region,['21.2']);
+facet=C.facets(rows,{month:'2026-09',trainer:'CRISTAL',region:'8.1',q:'jose'},'region');assert.equal(facet.selected.trainer,'');assert.deepEqual(facet.options.trainer,['KEYLA']);
+const model={rows,report:{},months:['2026-09'],files:[]};
+const bytes=E.build(fs.readFileSync(path.join(__dirname,'../assets/export-template.xlsx')),model,{target:'a',a:{month:'2026-09',trainer:'CRISTAL',q:'jose'},scope:'rejects'},F);const z=F.unzipSync(bytes),xml=p=>new TextDecoder().decode(z[p]);
+assert.match(xml('xl/pivotCache/pivotCacheRecords1.xml'),/count="1"/);assert.match(xml('xl/worksheets/sheet8.xml'),/CAPACITADORA/);assert.match(xml('xl/worksheets/sheet8.xml'),/CRISTAL/);assert.doesNotMatch(xml('xl/worksheets/sheet8.xml'),/>1002</);
+console.log('PASS: capacitadoras, subregiones, búsqueda sin acentos, filtros combinados, cero resultados sin ampliar selección y exportación Excel concordante.');

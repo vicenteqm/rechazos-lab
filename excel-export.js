@@ -3,10 +3,11 @@
 const NS='http://schemas.openxmlformats.org/spreadsheetml/2006/main',REL='http://schemas.openxmlformats.org/officeDocument/2006/relationships',PKG='http://schemas.openxmlformats.org/package/2006/relationships';
 const enc=new TextEncoder(),dec=new TextDecoder();
 const xml=v=>String(v??'').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
-const columns=['FOLIO','FECHA_CREACION','MES','REGION','DETERMINANTE','ESTATUS_BPI','ESTATUS_RECORDS','ESTATUS_AGENCIA','MOTIVO_AGRUPADO','MOTIVO_ORIGINAL_AGENCIA','ARCHIVOS_AGENCIA','CORTE_AGENCIA','ALERTAS','INCLUIR','CASOS','SOLICITUDES','REVISION','VISTA_FILTRADA','TIENDA','ARCHIVO_CORTE_AGENCIA','COINCIDE_AGENCIA','COINCIDE_RECORDS','TEAM_LEADER','LIDER_SWAT','SUBLIDER','PROMOTOR','PUESTO','EJECUTIVA_RH','EJECUTIVA_CPRO','ENLACE_BANCO','CRUCE_ASISTENCIA','CAPTURA_ASISTENCIA','ORIGEN_ASISTENCIA'];
+const columns=['FOLIO','FECHA_CREACION','MES','REGION','DETERMINANTE','ESTATUS_BPI','ESTATUS_RECORDS','ESTATUS_AGENCIA','MOTIVO_AGRUPADO','MOTIVO_ORIGINAL_AGENCIA','ARCHIVOS_AGENCIA','CORTE_AGENCIA','ALERTAS','INCLUIR','CASOS','SOLICITUDES','REVISION','VISTA_FILTRADA','TIENDA','ARCHIVO_CORTE_AGENCIA','COINCIDE_AGENCIA','COINCIDE_RECORDS','TEAM_LEADER','LIDER_SWAT','SUBLIDER','PROMOTOR','PUESTO','EJECUTIVA_RH','EJECUTIVA_CPRO','ENLACE_BANCO','CRUCE_ASISTENCIA','CAPTURA_ASISTENCIA','ORIGEN_ASISTENCIA','CAPACITADORA'];
+const CORE=root.RechazosCore||(typeof require==='function'?require('./core.js'):null);
 const numeric=new Set([1,14,15,16]);
 function letter(n){let s='';for(n++;n;n=Math.floor((n-1)/26))s=String.fromCharCode(65+(n-1)%26)+s;return s;}
-function fits(r,f={}){return Object.entries(f||{}).every(([k,v])=>!v||r[k]===v);}
+function fits(r,f={}){return CORE.matches(r,f);}
 function group(rows,key,asc=false){const map=new Map();for(const row of rows)map.set(String(row[key]??''),(map.get(String(row[key]??''))||0)+1);return [...map].sort((a,b)=>(asc?a[1]-b[1]:b[1]-a[1])||a[0].localeCompare(b[0],'es',{numeric:true}));}
 function build(template,model,options={},F=root.fflate){
  if(!F)throw Error('No se cargó la biblioteca de exportación Excel.');
@@ -15,7 +16,7 @@ function build(template,model,options={},F=root.fflate){
  if(!base.length)throw Error('La selección no tiene solicitudes BPI. Elige todo el cruce u otros filtros.');
  if(base.length>1048575)throw Error('El cruce supera el límite de filas de una hoja Excel. Exporta por mes o región.');
  const isCase=r=>r.reject||(options.scope==='rejects-cancelled'&&r.cancel),cases=base.filter(isCase),desc=group(cases,'reason'),asc=group(cases,'reason',true);
- const data=base.map(r=>[r.folio,Math.round((Date.parse(r.created+'T00:00:00Z')-Date.UTC(1899,11,30))/86400000),r.month,r.region,r.det,r.status,r.records,r.agency,isCase(r)?r.reason:'FUERA DE ALCANCE',r.agencyRawReason||'',(r.agencySources||[]).join(' | '),r.cut||'',isCase(r)?r.flags.join('; '):'',isCase(r)?'Sí':'No',isCase(r)?1:0,1,isCase(r)&&r.flags.length?1:0,fits(r,options.a)?'Sí':'No',r.store||'Sin tienda en BPI',r.cutText||'',r.hasAgency?'Sí':'No',r.hasRecords?'Sí':'No',...['teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch','attendanceCode','attendanceSource'].map(k=>r[k]||'')]);
+ const data=base.map(r=>[r.folio,Math.round((Date.parse(r.created+'T00:00:00Z')-Date.UTC(1899,11,30))/86400000),r.month,r.region,r.det,r.status,r.records,r.agency,isCase(r)?r.reason:'FUERA DE ALCANCE',r.agencyRawReason||'',(r.agencySources||[]).join(' | '),r.cut||'',isCase(r)?r.flags.join('; '):'',isCase(r)?'Sí':'No',isCase(r)?1:0,1,isCase(r)&&r.flags.length?1:0,fits(r,options.a)?'Sí':'No',r.store||'Sin tienda en BPI',r.cutText||'',r.hasAgency?'Sí':'No',r.hasRecords?'Sí':'No',...['teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch','attendanceCode','attendanceSource'].map(k=>r[k]||''),CORE.trainerForRegion(r.region)]);
  for(const row of data)for(const value of row)if(typeof value==='string'&&value.length>32767)throw Error('Hay un texto que supera el límite de celda de Excel. Reduce los archivos incluidos en esta exportación.');
  const zip=F.unzipSync(template instanceof Uint8Array?template:new Uint8Array(template)),get=p=>dec.decode(zip[p]),put=(p,s)=>zip[p]=enc.encode(s);
  const original=get('xl/worksheets/sheet1.xml');
