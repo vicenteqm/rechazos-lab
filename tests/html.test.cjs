@@ -14,7 +14,7 @@ const nodes = new Map([...html.matchAll(/\bid="([^"]+)"/g)].map(x => [x[1], {
 }]));
 const events = [];
 const context = {
-    console, setTimeout,
+    console, setTimeout, clearTimeout,
     Option: function(text, value) { this.text = text; this.value = value; },
     CustomEvent: function(type, options) { this.type = type; this.detail = options.detail; },
     document: {getElementById: id => nodes.get(id) || null, addEventListener() {}, dispatchEvent: e => events.push(e)}
@@ -32,5 +32,7 @@ assert.equal(event.detail.options.a.month, data.filters.month);
 nodes.get('resetFilters').onclick();
 event = events.at(-1);
 assert.equal(event.detail.options.a.region, '');
+if (nodes.has('aTrainer')) assert.equal(event.detail.options.a.trainer, '');
+if (nodes.has('aSearch')) assert.equal(event.detail.options.a.q, '');
 assert.equal(event.detail.model.rows.length, data.model.rows.length);
 console.log(`PASS: HTML autónomo inicia y renderiza ${data.model.rows.length} folios; filtros activos, sin carga de archivos ni dependencias externas.`);
