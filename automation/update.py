@@ -336,6 +336,8 @@ def run(config,force=False):
             except OSError: print('Ya hay una actualización en curso.');return
             try:
                 result=build(config,force)
+                from publish_data import publish
+                publish(config,PRIVATE)
                 write_json(Path(config['output'])/'data/status.json',{'ok':True,'checked':now().isoformat()})
                 return result
             finally: guard.seek(0);msvcrt.locking(guard.fileno(),msvcrt.LK_UNLCK,1)

@@ -24,7 +24,7 @@
             <a href="#analisis">Análisis</a>
             <a href="#metodologia">Cómo se calcula</a>
         </nav>
-        <span class="privacy">● Datos locales · Sin publicación de archivos</span>
+        <span class="privacy">● Tablero compartido · Datos publicados</span>
     </header>
 
     <main>
@@ -53,8 +53,8 @@
 
         <section id="actualizacion" class="panel">
             <h2>Fuentes automáticas</h2>
-            <p id="liveStatus" role="status" aria-live="polite">Conectando con los datos locales…</p>
-            <p class="explain">El actualizador revisa las cinco carpetas cada cinco minutos. Esta página busca una nueva versión cada treinta segundos y conserva los filtros compatibles.</p>
+            <p id="liveStatus" role="status" aria-live="polite">Consultando la última versión publicada…</p>
+            <p class="explain">El equipo actualizador revisa las cinco carpetas cada cinco minutos y publica los cambios. Esta página busca una nueva versión cada treinta segundos y conserva los filtros compatibles.</p>
             <div id="sourceSummary" class="table-wrap"></div>
             <details><summary>Origen y reglas del cruce</summary><p>Base de tiendas: región, tienda, team leader, líder SWAT, sublíder y ejecutivas RH, CPRO y enlace banco. Son asignaciones de la base vigente, incluso al consultar meses anteriores. Asistencia: identidad por determinante, mes, nómina y usuario; no se emplean nombres de clientes. Una identidad ambigua no se asigna automáticamente. El motivo proviene del último corte disponible de Agencia.</p></details>
         </section>
@@ -76,9 +76,9 @@
 
             <div id="empty" class="empty">
                 <span>↗</span>
-                <h3>Esperando la primera actualización local</h3>
+                <h3>Esperando los datos del tablero</h3>
                 <p>
-                    Abre ABRIR_RECHAZOS_LOCAL.bat para leer las carpetas y consultar el tablero. Los datos no se publican en GitHub.
+                    Los datos se cargan automáticamente desde la última publicación. No necesitas subir archivos para consultar el análisis.
                 </p>
             </div>
 
@@ -267,15 +267,15 @@
 
         <footer>
             <span class="brand">RECHAZOS / LAB</span>
-            <span>Datos locales · GitHub conserva solo el código</span>
+            <span>Datos publicados · Consulta y exportación del análisis</span>
             <a href="README.md">Guía del proyecto ↗</a>
         </footer>
     </main>
 
     <script>window.RechazosFolder = true;</script>
-    <script src="core.js?v=20261022-carpetas" defer></script>
-    <script src="folder-ui.js?v=20261022-carpetas" defer></script>
-    <script src="app.js?v=20261022-carpetas" defer></script>
+    <script src="core.js?v=20261022-publico" defer></script>
+    <script src="folder-ui.js?v=20261022-publico" defer></script>
+    <script src="app.js?v=20261022-publico" defer></script>
 </body>
 
 </html>
