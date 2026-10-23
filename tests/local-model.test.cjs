@@ -1,0 +1,15 @@
+const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path'),C=require('../core.js'),E=require('../excel-export.js'),F=require('../vendor/fflate.js');
+const folder=path.join(__dirname,'../.private/sitio/data'),version=JSON.parse(fs.readFileSync(path.join(folder,'version.json'))),model=JSON.parse(fs.readFileSync(path.join(folder,version.model)));
+assert.equal(model.rows.length,33815);assert.equal(new Set(model.rows.map(r=>r.folio)).size,33815);
+assert.equal(C.select(model.rows,{month:'2026-09'}).total,14837);assert.equal(C.select(model.rows,{month:'2026-10'}).total,10676);
+const rh=model.rows.find(r=>r.month==='2026-10').rh;const s=C.facets(model.rows,{month:'2026-10',rh},'rh');const filtered=C.select(model.rows,s.selected);
+assert.ok(filtered.base.length);assert.ok(filtered.base.every(r=>r.rh===rh));assert.ok(s.options.region.length);
+const promoter=filtered.base.find(r=>r.attendanceMatch==='Coincidencia exacta').promoter;
+const opts={month:'2026-10',rh,promoter};const chosen=C.select(model.rows,opts);assert.ok(chosen.base.length);assert.ok(chosen.base.every(r=>r.rh===rh&&r.promoter===promoter));
+const bytes=E.build(fs.readFileSync(path.join(__dirname,'../assets/export-template.xlsx')),model,{target:'a',a:opts,scope:'rejects'},F);
+const zip=F.unzipSync(bytes),xml=name=>new TextDecoder().decode(zip[name]);
+assert.match(xml('xl/tables/table1.xml'),/ref="A1:AG\d+"/);assert.match(xml('xl/tables/table1.xml'),/name="PROMOTOR"/);assert.match(xml('xl/pivotCache/pivotCacheRecords1.xml'),new RegExp('count="'+chosen.base.length+'"'));
+assert.ok(!JSON.stringify(model.rows[0]).includes('Nombre del cliente'));
+fs.mkdirSync(path.join(__dirname,'../../outputs/rechazos_local'),{recursive:true});fs.writeFileSync(path.join(__dirname,'../../outputs/rechazos_local/validacion-responsable.xlsx'),bytes);
+console.log(JSON.stringify({base:model.rows.length,selectedCases:chosen.total,selectedBase:chosen.base.length,exact:model.enrichment.totals.employeesMatched,unvalidated:model.enrichment.totals.employeesUnmatched}));
+console.log('PASS: meses, filtros RH/promotor, unicidad de folios y Excel con 33 columnas y seis tablas dinámicas.');

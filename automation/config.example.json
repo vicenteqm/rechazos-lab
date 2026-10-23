@@ -1,0 +1,12 @@
+{
+  "folders": {
+    "stores": "C:/RUTA/Base de tiendas",
+    "attendance": "C:/RUTA/Asistencias/Invex/2026",
+    "bpi": "C:/RUTA/BPI/2026",
+    "agency": "C:/RUTA/Consolidados",
+    "records": "C:/RUTA/RECORDS"
+  },
+  "output": "C:/RUTA/rechazos-lab/.private/sitio",
+  "intervalSeconds": 300,
+  "port": 8798
+}

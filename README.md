@@ -1,84 +1,64 @@
 # Rechazos Lab
 
-Tablero estático para cruzar BPI, records y agencia, analizar un mes a la vez y explicar cada indicador. HTML, CSS y JavaScript; no requiere servidor de datos ni npm.
+Tablero local para analizar BPI, Records y Agencia, con responsables de la base de tiendas y capturistas validados mediante asistencias. Conserva el diseño Halloween pixel. **GitHub contiene únicamente código; las fuentes y los datos generados permanecen en tu computadora.**
 
-## Uso
+## Abrir el tablero
 
-1. Abre la dirección publicada en GitHub Pages.
-2. Selecciona uno o varios Excel/CSV de BPI, records y agencia. Debes cargar las tres fuentes. Usa BPI y records del mes que quieras analizar.
-3. Revisa la hoja detectada y, si hace falta, ajusta las columnas en “Revisar columnas detectadas”.
-4. Pulsa “Construir análisis”. Elige un mes, región, tienda y determinante. Los filtros se restringen entre sí; el último cambio tiene prioridad y limpia selecciones incompatibles. “Limpiar filtros del mes” conserva el mes y restablece las demás opciones. La tienda se obtiene de SEDE, TIENDA o SUCURSAL en BPI.
-5. Descarga el resumen agregado o la revisión por folio de la vista filtrada. Vaciar sesión elimina los datos de memoria; recargar requiere volver a cargar las fuentes.
+En este equipo ya está configurado. Ejecuta **ABRIR_RECHAZOS_LOCAL.bat** y abre `http://127.0.0.1:8798/`. No hay carga manual de Excel en la página. Se mantienen las exportaciones de Excel con seis tablas dinámicas nativas, CSV y HTML autónomo.
 
-Puedes agregar archivos después del primer análisis; vuelve a construir para incorporarlos. El tablero no guarda archivos en GitHub, localStorage ni una base de datos. La lectura de Excel se ejecuta en un Web Worker para no bloquear la interfaz. Google Fonts es opcional para la tipografía y no recibe el contenido de los archivos.
+- **ACTUALIZAR_RECHAZOS.bat** revisa las carpetas en ese momento.
+- **CONFIGURAR_ACTUALIZACION.bat** instala o reemplaza la tarea `RechazosLab-ActualizarLocal`, cada cinco minutos y al iniciar sesión. Requiere el equipo encendido y sesión iniciada; no modifica ni sube los Excel originales.
+- El servidor local también revisa las fuentes cada cinco minutos mientras está abierto. Un bloqueo impide dos actualizaciones simultáneas.
+- La página consulta una nueva versión cada treinta segundos y conserva filtros compatibles. Si se detecta un archivo inválido, muestra el error y conserva la última versión válida.
 
-## Exportar un Excel para compartir
+## Carpetas de entrada
 
-Después de construir el análisis, usa **Exportar Excel con tablas dinámicas**. Puedes elegir todo el cruce cargado o solo las solicitudes de la vista filtrada o B. Se respeta el alcance de rechazos o rechazos y canceladas elegido en el tablero.
+Las rutas reales se guardan en **automation/config.json**, que no se publica. Para configurar otro equipo, copia **automation/config.example.json**, ajusta las cinco carpetas y el directorio de salida. Python necesita `openpyxl`; el runtime de este equipo ya lo incluye. Node.js ejecuta el motor de cruce sin instalar paquetes.
 
-El archivo contiene:
+| Fuente | Contenido y selección |
+| --- | --- |
+| Base de tiendas | Un solo Excel vigente. Se reconocen región, determinante, tienda, team líder, líder SWAT, nombre de sublíder y ejecutivas RH, CPRO y enlace banco. Si hay dos archivos se detiene la actualización para retirar la copia anterior. |
+| Asistencias | Archivos por mes, por ejemplo ASISTENCIA_INVEX_09.xlsx y ASISTENCIA_INVEX_10.xlsx, dentro del año correspondiente. |
+| BPI | Archivos BPI_SEPTIEMBRE.xlsx, BPI_OCTUBRE.xlsx y los meses posteriores. El mes de cada solicitud lo determina FECHA DE CREACIÓN. |
+| Consolidados | Un solo Excel de Agencia con folio, Estatus_P y, cuando existe, fecha/archivo del último corte. |
+| Records | CSV o Excel mensual. Puede reemplazarse el archivo del mes o agregarse una versión posterior. También se reconocen nombres records_report_20261001_20261022.csv. |
 
-- **Resumen:** solicitudes, casos, tasa, revisión y hasta diez causas por cada extremo de frecuencia.
-- **TD_Mayor / TD_Menor:** tablas dinámicas nativas con todas las causas de mayor a menor y de menor a mayor.
-- **TD_Regiones, TD_Determinantes, TD_Meses y TD_Estatus:** tablas dinámicas para analizar los casos desde diferentes dimensiones.
-- **Cruce:** una tabla Excel con todos los folios BPI exportados, las coincidencias con records y agencia, el motivo agrupado y original, el archivo de agencia, el corte y las alertas. La columna INCLUIR marca los casos del alcance seleccionado.
-- **Guia:** selección exportada, periodos, región, tienda y determinante, metodología y archivos de origen.
+En carpetas mensuales se toma una única instantánea por mes: la de modificación más reciente, con nombre como desempate. No se suman versiones viejas del mismo mes. Septiembre permanece cuando se reemplaza octubre. Los archivos temporales de Excel (~$) se ignoran. Los originales solo se leen: el sistema no descarga reportes de otras plataformas ni modifica las fuentes.
 
-En Excel puedes reorganizar los campos de cada tabla dinámica. Después de editar Cruce, usa **Datos > Actualizar todo**. Las fórmulas del resumen se recalculan desde el cruce; para regenerar el orden de su ranking vuelve a exportar o vuelve a ordenarlo. Conserva el filtro INCLUIR = Sí para reproducir los casos del tablero. Cambiar el alcance entre rechazos y canceladas requiere volver a exportar desde el tablero.
+La fecha de modificación identifica la versión del archivo, pero **no prueba que el mes esté completo**. La pantalla muestra por separado la última fecha disponible de BPI y Records y el corte de Agencia. Si BPI llega al 21 y Records al 22, el universo de solicitudes sigue siendo el BPI hasta el 21.
 
-La exportación se genera en tu navegador con una plantilla diseñada con Artifact Tool y piezas nativas de Open XML. No usa macros, conexiones externas ni servicios de subida. Incluye folios y estatus, pero no nombres de clientes o ejecutivos.
+## Reglas del cruce
 
-### Columnas de entrada
+1. **Universo:** un folio numérico único de BPI es una solicitud. Las fuentes adicionales no aumentan ese universo. Rechazo significa ESTATUS BANCO que comienza con RECHAZO; incluye PF y CE. El alcance puede incluir canceladas.
+2. **Motivo:** Estatus_P de Agencia, normalizado por el motor. Se usa el último corte reconocido por folio. Un motivo vacío, conflicto, aprobación o falta de coincidencia se conserva como categoría de revisión. Records contrasta el estatus.
+3. **Tiendas y responsables:** determinante exacto contra la base vigente. Las dos columnas SUBLIDER se distinguen: la primera representa cantidad autorizada; la segunda, la persona responsable. Si el determinante no es único, no se escoge la primera tienda ni se duplican folios. Región y responsables son asignaciones actuales, también al consultar meses anteriores; no reconstruyen una estructura histórica.
+4. **Capturista:** determinante + mes + identificadores exactos de BPI y asistencia: ID/nómina, USUARIO FICO/USUARIO y EJ USUARIO o EJECUTIVO P/USUARIO BPI. Los identificadores disponibles deben coincidir en una sola persona, con fechas de ingreso a PDV y baja compatibles con la solicitud. NOMBRE de BPI es el cliente y no se utiliza para identificar al promotor.
+5. **Sin validar:** una identidad ausente o ambigua se conserva con el alias de BPI y la marca correspondiente. No se hacen coincidencias aproximadas de nombres ni se atribuye a quien simplemente trabaja en la misma tienda. El puesto y la captura del día se incluyen cuando existe coincidencia. Un código de asistencia no demuestra quién utilizó físicamente la cuenta.
+6. **Sublíder:** procede del nombre en base de tiendas. Cuando está pendiente, puede completarse con el único sublíder de la asistencia del día con captura A/R y fechas laborales compatibles. Se conserva el origen en el modelo.
 
-| Fuente | Obligatorias | Opcionales |
-|---|---|---|
-| BPI | FOLIO, FECHA DE CREACIÓN, REGION, DETERMINANTE, ESTATUS BANCO | — |
-| Records | Folio FICO, Estatus FICO | Aprobación, Estatus del proceso, F. Creación |
-| Agencia | FOLIO, Estatus_P | ESTATUS, Estatus_FICO, ARCHIVO_ULTIMO_CORTE o FECHA DE CORTE |
+## Filtros y exportaciones
 
-Se ignoran mayúsculas, acentos y espacios extra al detectar encabezados. Puedes asignar otros encabezados manualmente. Se admite XLSX, XLS y CSV en UTF-8 o Windows-1252. Las fechas BPI admiten ISO (año-mes-día), día/mes/año o número de serie Excel. La lectura numérica usa el calendario Excel 1900; archivos con calendario 1904 deben convertirse antes.
+Selecciona un mes. Región, tienda, determinante, team leader, líder SWAT, sublíder, promotor/capturista, puesto, ejecutivas RH/CPRO/enlace banco y validación de identidad se restringen entre sí. El último filtro cambiado tiene prioridad; los incompatibles se limpian. **Limpiar filtros** conserva el mes y restablece los demás.
 
-## Reglas de análisis
+El Excel exporta solo las solicitudes de la vista actual. Incluye Cruce con 33 campos, Resumen, Guia y seis tablas dinámicas reales: causas de mayor y menor frecuencia, regiones, determinantes, meses y estatus. En Excel usa **Datos > Actualizar todo** después de editar el cruce. Conserva INCLUIR = Sí para reproducir los casos.
 
-- **Universo:** folios numéricos únicos en BPI. El mes es el de creación BPI. Las fuentes de records/agencia se cruzan por folio, sin incorporar folios externos al universo.
-- **Rechazos:** ESTATUS BANCO empieza con RECHAZO; incluye PF y CE. La opción de canceladas incorpora estatus que empiezan con CANCELADA/CANCELADO.
-- **Región y determinante:** provienen de BPI. Vacíos se conservan como “Sin dato”.
-- **Motivo:** Estatus_P de agencia, con normalización de variantes conocidas. Valores desconocidos se conservan; no se inventan causas. Aprobaciones, casos en proceso, ausencias y conflictos son categorías de revisión.
-- **Records:** contrasta el proceso. “Aprobada Cancelada” no se traduce a un motivo crediticio. Diferentes combinaciones de estatus/aprobación/proceso generan una alerta por folio.
-- **Duplicados BPI:** repeticiones idénticas en campos analíticos se consolidan. Si cambian fecha, estatus, región o determinante del mismo folio se bloquea el cruce: el usuario debe resolver o elegir un solo corte.
-- **Duplicados agencia:** se usa la fila con la fecha de corte más reciente si todas tienen fecha reconocida. La fecha puede ser explícita o leerse del nombre de corte (incluye variante SEPTEIMBRE); si falta el año se infiere solo cuando BPI contiene un único año. Conflictos en la misma fecha o con fechas desconocidas se marcan y no reciben un motivo arbitrario.
-- **Tasa:** casos / solicitudes BPI con los mismos filtros. **Participación:** casos del motivo / casos de la selección. Una base vacía se muestra como “—”. **Δ pp:** tasa o participación A menos B, en puntos porcentuales.
-- **Cobertura:** coincidencias por folio / casos seleccionados. Tener coincidencia no implica que el motivo esté disponible.
-- **Revisión:** número de folios con al menos una alerta. Las alertas individuales pueden superponerse.
+El HTML autónomo incluye únicamente los folios de la selección actual, con gráficos, detalle de motivos y filtros. Funciona sin internet y no permite cargar archivos. Puede contener nombres de responsables y capturistas y sus estatus; se comparte manualmente con los destinatarios que correspondan. El código de publicación nunca incluye ese HTML.
 
-El consolidado representa el último corte disponible. Una cohorte de septiembre con agencia de octubre no reconstruye el cierre al 30 de septiembre. Compara cortes y periodos equivalentes antes de interpretar cambios. Las visualizaciones describen asociación y volumen; no prueban causalidad.
+## Archivos locales y recuperación
 
-El CSV de revisión contiene folios y estatus. Se descarga únicamente a petición del usuario y no se sube al repositorio. Los nombres de clientes y ejecutivos no se incluyen en el modelo analítico. Los CSV exportados neutralizan valores que podrían interpretarse como fórmulas.
+**.private/** contiene caché de lectura, generaciones del modelo, registros y el sitio local. Se excluye de Git. **automation/config.json** también se excluye. Cada fuente se comprueba con SHA-256 y se vuelve a verificar antes de hacer visible una generación. El puntero de versión se reemplaza solo después de guardar el modelo completo.
 
-## Desarrollo y pruebas
+- `.private/ultima_actualizacion.json`: última generación válida, cortes y fuentes.
+- `.private/ultimo_error.json`: último error registrado; puede ser anterior a una recuperación posterior.
+- `.private/sitio/data/status.json`: resultado de la revisión más reciente.
+- `.private/actualizacion.log` y `.private/servicio.log`: ejecución del actualizador y del servidor.
 
-```sh
-python -m http.server 8794 --bind 127.0.0.1
-# Abrir http://127.0.0.1:8794
-node tests/core.test.cjs
-# Opcional: requiere los archivos originales, solo en tu equipo
-node tests/real-files.cjs "C:/Users/plantilla.r3/Downloads"
-```
+El servidor escucha únicamente en 127.0.0.1. Cierra o reinicia el equipo normalmente; la tarea vuelve a revisar los datos al iniciar sesión y **ABRIR_RECHAZOS_LOCAL.bat** vuelve a iniciar el servidor al abrir el tablero.
 
-Abre la página mediante HTTP; los Web Workers no funcionan de forma fiable con doble clic en `index.html` (`file://`).
+## Verificación
 
-## Publicación
-
-Sube los archivos de este proyecto a un repositorio nuevo y activa GitHub Pages desde la rama principal, carpeta raíz. No incluyas los Excel ni CSV originales. No se necesita compilar. El proyecto empieza sin datos: cada persona carga sus propias fuentes en su navegador.
-
-## Dependencia
-
-SheetJS CE 0.20.3, distribuida en `vendor/xlsx.full.min.js`; licencia Apache-2.0 incluida en `vendor/LICENSE-SheetJS.txt`. Fuente oficial: https://docs.sheetjs.com/docs/getting-started/installation/standalone/ y https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js. SHA256 del archivo: `cc015130aa8521e7f088f88898eba949ccdcbfb38df0bd129b44b7273c3a6f41`.
-
-fflate 0.8.2 se usa para empaquetar el archivo Excel. Licencia MIT incluida en `vendor/LICENSE-fflate.txt`. Fuente: https://github.com/101arrowz/fflate .
-
-## Compartir un HTML sin conexión
-
-Pulsa **Exportar tablero HTML** después de construir el análisis. El archivo incluye solo las solicitudes de los filtros actuales, gráficos interactivos, detalle de motivos, filtros vinculados y CSV de resumen/revisión. No muestra ni permite cargar archivos. Se abre directamente en un navegador sin internet; no requiere los Excel originales, bibliotecas externas ni servidor. Los nombres de clientes y ejecutivos no forman parte del modelo, pero sí se incluyen folios, estatus, motivos y referencias de los archivos utilizados. Comparte el informe con quienes deban consultar esa información.
-
-El botón Limpiar filtros del mes solo amplía la consulta dentro de los datos exportados. Las cifras de calidad de archivos describen la carga original, como indica la nota del informe.
+- `node tests/core.test.cjs`: llaves, fechas, motivos, tasas y filtros.
+- `node tests/excel.test.cjs`: seis tablas dinámicas y exportación filtrada.
+- `python -m unittest discover -s tests -p "*_test.py" -v`: detección de meses, reemplazo de versiones, identidad exacta y conservación de datos ante errores.
+- `node tests/local-model.test.cjs`: conciliación inicial de septiembre/octubre y filtros sobre los archivos reales de este equipo; no es una prueba para CI sin fuentes locales.
+- `node tests/html.test.cjs RUTA_AL_HTML`: ejecuta el script incrustado sin red y verifica el render y los filtros.

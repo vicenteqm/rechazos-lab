@@ -20,100 +20,43 @@
             RECHAZOS<span class="light"> / LAB</span>
         </a>
         <nav>
-            <a href="#fuentes">Fuentes</a>
+            <a href="#actualizacion">Actualización</a>
             <a href="#analisis">Análisis</a>
             <a href="#metodologia">Cómo se calcula</a>
         </nav>
-        <span class="privacy">● Procesamiento en tu navegador</span>
+        <span class="privacy">● Datos locales · Sin publicación de archivos</span>
     </header>
 
     <main>
         <section class="hero">
             <div>
-                <p class="eyebrow">BPI · RECORDS · AGENCIA</p>
+                <p class="eyebrow">BPI · RECORDS · AGENCIA · TIENDAS · ASISTENCIA</p>
                 <h1>Entiende el rechazo.<br>
                     <em>Encuentra dónde actuar.</em>
                 </h1>
                 <p class="intro">
-                    Cruza tus archivos por folio, identifica los motivos
+                    Consulta tus fuentes actualizadas por folio, identifica los motivos
                     y analiza resultados con el contexto detrás de cada cifra.
                 </p>
             </div>
 
             <aside class="hero-note">
                 <span class="pill">TU MESA DE ANÁLISIS</span>
-                <h3>Tres fuentes.<br>Una lectura completa.</h3>
+                <h3>Cinco fuentes.<br>Una lectura completa.</h3>
                 <p>
                     BPI define el universo. Records contrasta el proceso.
                     Agencia aporta el motivo específico.
                 </p>
-                <span>01 / Carga &nbsp; 02 / Cruce &nbsp; 03 / Analiza</span>
+                <span>01 / Actualización &nbsp; 02 / Cruce &nbsp; 03 / Análisis</span>
             </aside>
         </section>
 
-        <section id="fuentes">
-            <div class="section-title">
-                <div>
-                    <p class="eyebrow">01 — PREPARA TU INFORMACIÓN</p>
-                    <h2>Carga las fuentes</h2>
-                    <p>
-                        Puedes elegir varios archivos de cada tipo
-                        para elegir un mes a la vez o incorporar distintos cortes.
-                    </p>
-                </div>
-                <button id="clear" class="ghost">Vaciar sesión</button>
-            </div>
-
-            <div class="uploads">
-                <article class="upload">
-                    <span class="source-number">01</span>
-                    <h3>BPI</h3>
-                    <p>Universo de solicitudes, región, determinante y estatus del banco.</p>
-                    <label class="file-button">
-                        Seleccionar Excel o CSV
-                        <input type="file" id="bpi" multiple accept=".xlsx,.xls,.csv">
-                    </label>
-                    <div id="bpiFiles" class="file-list"></div>
-                </article>
-
-                <article class="upload">
-                    <span class="source-number">02</span>
-                    <h3>Records</h3>
-                    <p>Reporte del proceso para contrastar el estatus de cada folio.</p>
-                    <label class="file-button">
-                        Seleccionar Excel o CSV
-                        <input type="file" id="records" multiple accept=".xlsx,.xls,.csv">
-                    </label>
-                    <div id="recordsFiles" class="file-list"></div>
-                </article>
-
-                <article class="upload">
-                    <span class="source-number">03</span>
-                    <h3>Agencia</h3>
-                    <p>Motivo de rechazo y estatus del último corte disponible.</p>
-                    <label class="file-button">
-                        Seleccionar Excel o CSV
-                        <input type="file" id="agency" multiple accept=".xlsx,.xls,.csv">
-                    </label>
-                    <div id="agencyFiles" class="file-list"></div>
-                </article>
-            </div>
-
-            <div class="runbar">
-                <p>
-                    <strong>Los archivos se quedan contigo.</strong>
-                    Se leen en memoria; al recargar la página tendrás
-                    que cargarlos de nuevo.
-                </p>
-                <button id="analyze" disabled>
-                    Construir análisis <span>↗</span>
-                </button>
-            </div>
-
-            <p id="status" role="status" aria-live="polite">
-                Carga BPI, records y agencia para comenzar.
-            </p>
-            <div id="error" role="alert" hidden></div>
+        <section id="actualizacion" class="panel">
+            <h2>Fuentes automáticas</h2>
+            <p id="liveStatus" role="status" aria-live="polite">Conectando con los datos locales…</p>
+            <p class="explain">El actualizador revisa las cinco carpetas cada cinco minutos. Esta página busca una nueva versión cada treinta segundos y conserva los filtros compatibles.</p>
+            <div id="sourceSummary" class="table-wrap"></div>
+            <details><summary>Origen y reglas del cruce</summary><p>Base de tiendas: región, tienda, team leader, líder SWAT, sublíder y ejecutivas RH, CPRO y enlace banco. Son asignaciones de la base vigente, incluso al consultar meses anteriores. Asistencia: identidad por determinante, mes, nómina y usuario; no se emplean nombres de clientes. Una identidad ambigua no se asigna automáticamente. El motivo proviene del último corte disponible de Agencia.</p></details>
         </section>
 
         <section id="analisis">
@@ -133,10 +76,9 @@
 
             <div id="empty" class="empty">
                 <span>↗</span>
-                <h3>Tu análisis empieza con los archivos</h3>
+                <h3>Esperando la primera actualización local</h3>
                 <p>
-                    Elige las tres fuentes arriba. Después podrás filtrar
-                    un mes por región, tienda y determinante.
+                    Abre ABRIR_RECHAZOS_LOCAL.bat para leer las carpetas y consultar el tablero. Los datos no se publican en GitHub.
                 </p>
             </div>
 
@@ -178,17 +120,26 @@
                                 <select id="aRegion"></select>
                             </label>
                             <label>
-                                Tienda (SEDE)
+                                Tienda (base vigente)
                                 <select id="aStore"></select>
                             </label>
                             <label>
                                 Determinante
                                 <select id="aDet"></select>
                             </label>
+                            <label>Team leader<select id="aTeamLeader"></select></label>
+                            <label>Líder SWAT<select id="aSwatLeader"></select></label>
+                            <label>Sublíder<select id="aSubleader"></select></label>
+                            <label>Promotor / capturista<select id="aPromoter"></select></label>
+                            <label>Puesto en asistencia<select id="aEmployeeRole"></select></label>
+                            <label>Ejecutiva RH<select id="aRh"></select></label>
+                            <label>Ejecutiva CPRO<select id="aCpro"></select></label>
+                            <label>Ejecutiva enlace banco<select id="aBankLink"></select></label>
+                            <label>Validación de identidad<select id="aAttendanceMatch"></select></label>
                         </div>
 
                         <p id="filterContext" class="explain" aria-live="polite"></p>
-                        <button id="resetFilters" type="button" title="Restablecer región, tienda y determinante del mes seleccionado">↺ Limpiar filtros</button>
+                        <button id="resetFilters" type="button" title="Restablecer todos los filtros del mes seleccionado">↺ Limpiar filtros</button>
 
                         <div id="aMetrics" class="metrics"></div>
 
@@ -316,12 +267,15 @@
 
         <footer>
             <span class="brand">RECHAZOS / LAB</span>
-            <span>Archivos locales · Sin almacenamiento de solicitudes</span>
+            <span>Datos locales · GitHub conserva solo el código</span>
             <a href="README.md">Guía del proyecto ↗</a>
         </footer>
     </main>
 
-    <script src="app.js?v=20261022-html" defer></script>
+    <script>window.RechazosFolder = true;</script>
+    <script src="core.js?v=20261022-carpetas" defer></script>
+    <script src="folder-ui.js?v=20261022-carpetas" defer></script>
+    <script src="app.js?v=20261022-carpetas" defer></script>
 </body>
 
 </html>

@@ -70,8 +70,12 @@
     }
     return {rows,report,files:docs.map(d=>({name:d.name,role:d.role,sheet:d.sheet,rows:d.rows.length})),months:[...new Set(rows.map(r=>r.month))].sort()};
   }
+  const filterKeys=['region','store','det','teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch'];
+  function matches(row,filters={},except='') {
+    return (!filters.month||row.month===filters.month)&&filterKeys.every(k=>k===except||!filters[k]||row[k]===filters[k]);
+  }
   function select(rows,filters={},scope='rejects'){
-    const base=rows.filter(r=>(!filters.month||r.month===filters.month)&&(!filters.region||r.region===filters.region)&&(!filters.store||r.store===filters.store)&&(!filters.det||r.det===filters.det));
+    const base=rows.filter(r=>matches(r,filters));
     const cases=base.filter(r=>r.reject||(scope==='rejects-cancelled'&&r.cancel));
     const counts=new Map();cases.forEach(r=>counts.set(r.reason,(counts.get(r.reason)||0)+1));
     const reasons=[...counts].map(([reason,count])=>({reason,count,share:cases.length?count/cases.length:0})).sort((a,b)=>b.count-a.count||a.reason.localeCompare(b.reason));
@@ -79,9 +83,8 @@
   }
   function facets(rows,filters={},changed='month'){
     const months=[...new Set(rows.map(r=>r.month))].sort();
-    const selected={month:months.includes(filters.month)?filters.month:months.at(-1),region:filters.region||'',store:filters.store||'',det:filters.det||''};
-    const dims=['region','store','det'];
-    // The last changed filter wins; keep other choices only when compatible.
+    const dims=filterKeys.filter(k=>['region','store','det'].includes(k)||rows.some(r=>r[k]!==undefined)||Object.hasOwn(filters,k));
+    const selected={month:months.includes(filters.month)?filters.month:months.at(-1),...Object.fromEntries(dims.map(k=>[k,filters[k]||'']))};
     const order=dims.includes(changed)?[changed,...dims.filter(k=>k!==changed)]:dims;
     let compatible=rows.filter(r=>r.month===selected.month);
     for(const k of order){
@@ -89,9 +92,9 @@
       if(selected[k])compatible=compatible.filter(r=>r[k]===selected[k]);
     }
     const options={month:months};
-    for(const k of dims)options[k]=[...new Set(rows.filter(r=>r.month===selected.month&&dims.every(other=>other===k||!selected[other]||r[other]===selected[other])).map(r=>r[k]))].sort((a,b)=>a.localeCompare(b,'es',{numeric:true}));
+    for(const k of dims)options[k]=[...new Set(rows.filter(r=>matches(r,selected,k)).map(r=>r[k]).filter(v=>v!==undefined&&v!==null&&v!==''))].sort((a,b)=>a.localeCompare(b,'es',{numeric:true}));
     return {selected,options};
   }
-  const api={norm,key,date,cut,aliases,required,mapping,reason,build,select,facets};
+  const api={norm,key,date,cut,aliases,required,mapping,reason,build,select,facets,matches,filterKeys};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;root.RechazosCore=api;
 })(typeof self!=='undefined'?self:globalThis);

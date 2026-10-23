@@ -2,7 +2,7 @@
     'use strict';
     const bar = document.createElement('div');
     bar.className = 'excel-export-bar';
-    bar.innerHTML = `<div><strong>Comparte el tablero como HTML</strong><p>Incluye únicamente los folios de la selección actual, con gráficos y filtros interactivos. Funciona sin internet y no permite cargar archivos. Quien lo reciba podrá consultar los folios, estatus y motivos incluidos.</p></div><button id="exportHtml" disabled>↓ Exportar tablero HTML</button><p id="htmlStatus" role="status" aria-live="polite"></p>`;
+    bar.innerHTML = `<div><strong>Comparte el tablero como HTML</strong><p>Incluye únicamente los folios de la selección actual, con gráficos y filtros interactivos. Funciona sin internet y no permite cargar archivos. Quien lo reciba podrá consultar folios, responsables, promotores, estatus y motivos incluidos.</p></div><button id="exportHtml" disabled>↓ Exportar tablero HTML</button><p id="htmlStatus" role="status" aria-live="polite"></p>`;
     document.getElementById('analisis').insertBefore(bar, document.getElementById('empty'));
     const button = document.getElementById('exportHtml');
     const status = document.getElementById('htmlStatus');
@@ -25,14 +25,14 @@
             }));
             const [shell, baseCSS, halloweenCSS, visualsCSS, pumpkin, core, app] = parts;
             const doc = new DOMParser().parseFromString(shell, 'text/html');
-            doc.querySelectorAll('script, link, #fuentes, #empty, nav a[href="#fuentes"], footer a').forEach(el => el.remove());
+            doc.querySelectorAll('script, link, #fuentes, #actualizacion, #empty, nav a[href="#fuentes"], nav a[href="#actualizacion"], footer a').forEach(el => el.remove());
             doc.querySelector('.brand').removeAttribute('href');
             doc.querySelector('.privacy').textContent = '● Informe autónomo · Datos incrustados';
             doc.querySelector('.hero .intro').textContent = 'Informe compartido de la selección exportada. Los filtros y gráficos funcionan sin internet. No permite cargar archivos ni consultar folios fuera de esta selección.';
             doc.querySelector('.hero-note').innerHTML = '<span class="pill">INFORME COMPARTIDO</span><h3>Datos listos para consultar</h3><p>Selecciona región, tienda o determinante para explorar los casos incluidos.</p>';
             doc.querySelector('footer > span:nth-child(2)').textContent = 'Informe local · Contiene datos de la selección exportada';
             const selected = snapshot.options.a;
-            const rows = snapshot.model.rows.filter(r => (!selected.month || r.month === selected.month) && (!selected.region || r.region === selected.region) && (!selected.store || r.store === selected.store) && (!selected.det || r.det === selected.det));
+            const rows = window.RechazosCore.select(snapshot.model.rows, selected, snapshot.options.scope).base;
             if (!rows.length) throw Error('La selección no tiene solicitudes para compartir.');
             const data = {model: {...snapshot.model, rows, months: [...new Set(rows.map(r => r.month))].sort()}, filters: selected, scope: snapshot.options.scope};
             const note = doc.createElement('p');

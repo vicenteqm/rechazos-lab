@@ -278,7 +278,7 @@ function renderFiles(role) {
     }
 }
 
-if (!window.RechazosShared) {
+if (!window.RechazosShared && !window.RechazosFolder) {
 // CARGA DE EXCEL Y CSV
 
 for (const role of ['bpi', 'records', 'agency']) {
@@ -409,26 +409,27 @@ function renderModel() {
     render();
 }
 
+const filterDefinitions = [
+    ['month','Month',null],['region','Region','Todas las regiones'],['store','Store','Todas las tiendas'],['det','Det','Todos los determinantes'],
+    ['teamLeader','TeamLeader','Todos los team leaders'],['swatLeader','SwatLeader','Todos los líderes SWAT'],['subleader','Subleader','Todos los sublíderes'],
+    ['promoter','Promoter','Todos los promotores / capturistas'],['employeeRole','EmployeeRole','Todos los puestos'],['rh','Rh','Todas las ejecutivas RH'],
+    ['cpro','Cpro','Todas las ejecutivas CPRO'],['bankLink','BankLink','Todas las ejecutivas enlace banco'],['attendanceMatch','AttendanceMatch','Todas las coincidencias']
+];
 function filters(v) {
-    return {
-        month: $(v + 'Month').value,
-        region: $(v + 'Region').value,
-        store: $(v + 'Store').value,
-        det: $(v + 'Det').value
-    };
+    return Object.fromEntries(filterDefinitions.filter(([,suffix])=>$(v+suffix)).map(([field,suffix])=>[field,$(v+suffix).value]));
 }
-
 function syncFilters(changed, initial) {
     if (!model) return;
     const state = RechazosCore.facets(model.rows, initial || filters('a'), changed);
-    for (const [field, suffix, label] of [['month','Month',null], ['region','Region','Todas las regiones'], ['store','Store','Todas las tiendas'], ['det','Det','Todos los determinantes']]) {
+    for (const [field,suffix,label] of filterDefinitions) {
         const el = $('a' + suffix);
+        if (!el) continue;
         el.replaceChildren();
-        if (label) el.add(new Option(label, ''));
-        for (const value of state.options[field]) el.add(new Option(value, value));
-        el.value = state.selected[field];
+        if (label) el.add(new Option(label,''));
+        for (const value of state.options[field] || []) el.add(new Option(value,value));
+        el.value = state.selected[field] || '';
     }
-    $('filterContext').textContent = `Mes ${state.selected.month}. ${RechazosCore.select(model.rows, state.selected).base.length.toLocaleString('es-MX')} solicitudes BPI compatibles. Tienda proviene de SEDE de BPI; si falta, se indica “Sin tienda en BPI”.`;
+    $('filterContext').textContent = `Mes ${state.selected.month}. ${RechazosCore.select(model.rows,state.selected).base.length.toLocaleString('es-MX')} solicitudes compatibles. ` + (model.automation ? 'Región, tienda y responsables de la base vigente. Promotor validado por asistencia del mes; los casos sin validar se identifican expresamente.' : 'Tienda de BPI.');
 }
 
 // TABLAS
@@ -826,6 +827,10 @@ function render() {
     const a = RechazosCore.select(model.rows, f, scope);
 
     views = {a};
+    if (model.automation) {
+        const validated = a.base.filter(r=>r.attendanceMatch==='Coincidencia exacta').length;
+        $('filterContext').textContent = `Mes ${f.month}. ${fmt(a.base.length)} solicitudes compatibles: ${fmt(validated)} con capturista validado y ${fmt(a.base.length-validated)} sin validar o con identidad ambigua. Responsables de la base vigente; asistencia del mes y determinante. Los casos sin validar permanecen en los totales.`;
+    }
 
     // KPI
 
@@ -1019,6 +1024,7 @@ $('export').onclick = () => {
         'REGION',
         'DETERMINANTE',
         'TIENDA',
+        'TEAM_LEADER','LIDER_SWAT','SUBLIDER','PROMOTOR','PUESTO','RH','CPRO','ENLACE_BANCO','CRUCE_ASISTENCIA',
         'ALCANCE',
         'MOTIVO',
         'CONTEO',
@@ -1038,6 +1044,7 @@ $('export').onclick = () => {
             f.region || 'Todas',
             f.det || 'Todos',
             f.store || 'Todas',
+            ...['teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch'].map(k=>f[k]||'Todos'),
             $('scope').value,
             r.reason,
             r.count,
@@ -1057,6 +1064,7 @@ $('export').onclick = () => {
             f.region || 'Todas',
             f.det || 'Todos',
             f.store || 'Todas',
+            ...['teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch'].map(k=>f[k]||'Todos'),
             $('scope').value,
             'SIN CASOS',
             0,
@@ -1107,8 +1115,9 @@ $('exportReview').onclick = () => {
 // EVENTOS DE FILTROS
 
 $('scope').onchange = render;
-for (const [id, field] of [['aMonth','month'], ['aRegion','region'], ['aStore','store'], ['aDet','det']]) {
-    $(id).onchange = () => { syncFilters(field); render(); };
+for (const [field,suffix] of filterDefinitions) {
+    const control = $('a'+suffix);
+    if (control) control.onchange = () => { syncFilters(field); render(); };
 }
 $('resetFilters').onclick = () => { syncFilters('month', {month: $('aMonth').value}); render(); };
 
@@ -1119,6 +1128,12 @@ if (window.RechazosShared) {
     syncFilters('month', window.RechazosShared.filters);
     $('scope').value = window.RechazosShared.scope;
     render();
+} else if (window.RechazosFolder) {
+    window.RechazosLive.start(next => {
+        const previous = model ? filters('a') : null;
+        model = next; renderModel();
+        if (previous) { syncFilters('month', previous); render(); }
+    });
 } else {
     const coreScript = document.createElement('script');
     coreScript.src = 'core.js?v=20261022-html';
