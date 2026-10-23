@@ -831,7 +831,7 @@ function render() {
     views = {a};
     if ($('searchResultsPanel')) {
         $('searchResultsPanel').hidden = ![f.q,f.folioQuery,f.personQuery].some(value=>value?.trim());
-        $('searchResults').innerHTML = table(['Folio','Promotor / capturista','Tienda','Capacitadora','Estatus BPI','Motivo / referencia'],a.base.slice(0,100).map(r=>[r.folio,r.promoter||'Sin dato',r.store,RechazosCore.trainerForRegion(r.region),r.status,r.reason]));
+        $('searchResults').innerHTML = table(['Folio','Fecha de creación (BPI)','Promotor / capturista','Tienda','Capacitadora','Estatus BPI','Motivo / referencia'],a.base.slice(0,100).map(r=>[r.folio,r.created?r.created.split('-').reverse().join('/'):'Sin fecha',r.promoter||'Sin dato',r.store,RechazosCore.trainerForRegion(r.region),r.status,r.reason]));
     }
     if (model.automation) {
         const validated = a.base.filter(r=>r.attendanceMatch==='Coincidencia exacta').length;

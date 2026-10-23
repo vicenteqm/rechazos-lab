@@ -6,7 +6,7 @@
             let generation = '', checking = false;
             const esc = v => String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
             await Promise.all(['vendor/fflate.js','excel-ui.js','html-export.js'].map(source => new Promise((resolve,reject)=>{
-                const script=document.createElement('script');script.src=source+'?v=20261023-dos-busquedas';script.onload=resolve;script.onerror=reject;document.head.append(script);
+                const script=document.createElement('script');script.src=source+'?v=20261023-fecha';script.onload=resolve;script.onerror=reject;document.head.append(script);
             })));
             async function refresh() {
                 if (checking) return;

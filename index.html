@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#100f18">
     <title>Rechazos Lab · Analítica operativa</title>
     <link rel="icon" type="image/svg+xml" href="pumpkin.svg">
-    <link rel="stylesheet" href="styles.css?v=20261023-dos-busquedas">
+    <link rel="stylesheet" href="styles.css?v=20261023-fecha">
     <link rel="stylesheet" href="halloween.css">
     <link rel="stylesheet" href="visuals.css">
 </head>
@@ -145,14 +145,14 @@
                             <div><label class="search-label" for="aPersonSearch">Buscar persona</label>
                             <input id="aPersonSearch" type="search" placeholder="Nombre de promotor, responsable o capacitadora" autocomplete="off" aria-describedby="searchHelp"></div>
                         </div>
-                        <p id="searchHelp" class="explain">Folio busca únicamente en el número de solicitud. Persona busca en los nombres del equipo, sin distinguir acentos ni mayúsculas. Ambas búsquedas se combinan entre sí y con los filtros activos.</p>
+                        <p id="searchHelp" class="explain">Folio busca únicamente en el número de solicitud. Persona busca promotores/capturistas, team leaders, líderes SWAT, sublíderes, ejecutivas RH, CPRO, enlace banco y capacitadoras; no busca clientes. No distingue acentos ni mayúsculas. Ambas búsquedas se combinan entre sí y con los filtros activos.</p>
                         <p id="filterContext" class="explain" aria-live="polite"></p>
                         <button id="resetFilters" type="button" title="Restablecer todos los filtros del mes seleccionado">↺ Limpiar filtros</button>
 
                         <div id="aMetrics" class="metrics"></div>
                         <article id="searchResultsPanel" class="panel" hidden>
                             <h3>Coincidencias de la búsqueda</h3>
-                            <p class="explain">Hasta 100 solicitudes del mes y filtros activos, incluidas las que no son rechazos. Los gráficos conservan el alcance seleccionado.</p>
+                            <p class="explain">Hasta 100 solicitudes del mes y filtros activos, incluidas las que no son rechazos. La fecha corresponde a la creación del folio en BPI. Los gráficos conservan el alcance seleccionado.</p>
                             <div id="searchResults" class="table-wrap"></div>
                         </article>
 
@@ -286,9 +286,9 @@
     </main>
 
     <script>window.RechazosFolder = true;</script>
-    <script src="core.js?v=20261023-dos-busquedas" defer></script>
-    <script src="folder-ui.js?v=20261023-dos-busquedas" defer></script>
-    <script src="app.js?v=20261023-dos-busquedas" defer></script>
+    <script src="core.js?v=20261023-fecha" defer></script>
+    <script src="folder-ui.js?v=20261023-fecha" defer></script>
+    <script src="app.js?v=20261023-fecha" defer></script>
 </body>
 
 </html>
