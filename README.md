@@ -78,3 +78,7 @@ La página se actualiza después del despliegue de GitHub Pages, que puede tarda
 CRISTAL: 3, 4.1, 4.2, 4.3, 4.4, 21 (y subregiones) y 23. KEYLA: 8.1, 8.2, 8.3, 11, 15.1, 15.2 y 19; la región agrupada 15 también corresponde a KEYLA. ESTEFANI: 1, 2, 13.1, 13.2, 20 y 22 (ambas con sus subregiones). Otras regiones, incluida 8.4, quedan sin capacitadora asignada. La asignación se deriva de la región vigente de la solicitud.
 
 La búsqueda combina palabras parciales sin distinguir acentos ni mayúsculas sobre folio, determinante, tienda, nombres de promotores y responsables, capacitadora, puesto, estatus y motivos. Se aplica junto a los filtros activos: una búsqueda sin coincidencias conserva esos filtros y muestra cero resultados. Los nombres de clientes no forman parte del modelo. Excel, CSV y HTML respetan capacitadora y búsqueda; Limpiar filtros restablece ambos y conserva el mes.
+
+## Búsquedas separadas
+
+**Buscar folio** consulta únicamente el número de solicitud, completo o parcial. **Buscar persona** consulta promotor/capturista, team leader, líder SWAT, sublíder, ejecutivas RH/CPRO/enlace banco y capacitadora. Todas las palabras deben coincidir en una misma persona; no se mezclan nombres de personas diferentes. No busca nombres de clientes. Si se usan ambas barras, deben coincidir ambas además de los demás filtros. Excel, CSV y HTML conservan las dos búsquedas. Limpiar filtros borra ambas y mantiene el mes.

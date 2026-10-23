@@ -34,5 +34,7 @@ event = events.at(-1);
 assert.equal(event.detail.options.a.region, '');
 if (nodes.has('aTrainer')) assert.equal(event.detail.options.a.trainer, '');
 if (nodes.has('aSearch')) assert.equal(event.detail.options.a.q, '');
+if (nodes.has('aFolioSearch')) assert.equal(event.detail.options.a.folioQuery, '');
+if (nodes.has('aPersonSearch')) assert.equal(event.detail.options.a.personQuery, '');
 assert.equal(event.detail.model.rows.length, data.model.rows.length);
 console.log(`PASS: HTML autónomo inicia y renderiza ${data.model.rows.length} folios; filtros activos, sin carga de archivos ni dependencias externas.`);

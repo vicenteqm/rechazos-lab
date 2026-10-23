@@ -416,12 +416,13 @@ const filterDefinitions = [
     ['cpro','Cpro','Todas las ejecutivas CPRO'],['bankLink','BankLink','Todas las ejecutivas enlace banco'],['attendanceMatch','AttendanceMatch','Todas las coincidencias']
 ];
 function filters(v) {
-    return {...Object.fromEntries(filterDefinitions.filter(([,suffix])=>$(v+suffix)).map(([field,suffix])=>[field,$(v+suffix).value])),...($('aSearch')?{q:$('aSearch').value}:{})};
+    return {...Object.fromEntries(filterDefinitions.filter(([,suffix])=>$(v+suffix)).map(([field,suffix])=>[field,$(v+suffix).value])),...($('aSearch')?{q:$('aSearch').value}:{}),...Object.fromEntries([['folioQuery','aFolioSearch'],['personQuery','aPersonSearch']].filter(([,id])=>$(id)).map(([k,id])=>[k,$(id).value]))};
 }
 function syncFilters(changed, initial) {
     if (!model) return;
     const state = RechazosCore.facets(model.rows, initial || filters('a'), changed);
     if ($('aSearch')) $('aSearch').value=state.selected.q || '';
+    for(const [key,id] of [['folioQuery','aFolioSearch'],['personQuery','aPersonSearch']])if($(id))$(id).value=state.selected[key]||'';
     for (const [field,suffix,label] of filterDefinitions) {
         const el = $('a' + suffix);
         if (!el) continue;
@@ -829,7 +830,7 @@ function render() {
 
     views = {a};
     if ($('searchResultsPanel')) {
-        $('searchResultsPanel').hidden = !f.q?.trim();
+        $('searchResultsPanel').hidden = ![f.q,f.folioQuery,f.personQuery].some(value=>value?.trim());
         $('searchResults').innerHTML = table(['Folio','Promotor / capturista','Tienda','Capacitadora','Estatus BPI','Motivo / referencia'],a.base.slice(0,100).map(r=>[r.folio,r.promoter||'Sin dato',r.store,RechazosCore.trainerForRegion(r.region),r.status,r.reason]));
     }
     if (model.automation) {
@@ -1029,7 +1030,7 @@ $('export').onclick = () => {
         'REGION',
         'DETERMINANTE',
         'TIENDA',
-        'CAPACITADORA','BUSQUEDA',
+        'CAPACITADORA','BUSQUEDA_FOLIO','BUSQUEDA_PERSONA',
         'TEAM_LEADER','LIDER_SWAT','SUBLIDER','PROMOTOR','PUESTO','RH','CPRO','ENLACE_BANCO','CRUCE_ASISTENCIA',
         'ALCANCE',
         'MOTIVO',
@@ -1050,7 +1051,7 @@ $('export').onclick = () => {
             f.region || 'Todas',
             f.det || 'Todos',
             f.store || 'Todas',
-            f.trainer || 'Todas',f.q || '',
+            f.trainer || 'Todas',f.folioQuery || '',f.personQuery || '',
             ...['teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch'].map(k=>f[k]||'Todos'),
             $('scope').value,
             r.reason,
@@ -1071,7 +1072,7 @@ $('export').onclick = () => {
             f.region || 'Todas',
             f.det || 'Todos',
             f.store || 'Todas',
-            f.trainer || 'Todas',f.q || '',
+            f.trainer || 'Todas',f.folioQuery || '',f.personQuery || '',
             ...['teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch'].map(k=>f[k]||'Todos'),
             $('scope').value,
             'SIN CASOS',
@@ -1128,8 +1129,12 @@ for (const [field,suffix] of filterDefinitions) {
     if (control) control.onchange = () => { syncFilters(field); render(); };
 }
 let searchTimer;
-if ($('aSearch')) $('aSearch').oninput = () => { clearTimeout(searchTimer); searchTimer=setTimeout(()=>{syncFilters('q');render();},180); };
-$('resetFilters').onclick = () => { clearTimeout(searchTimer); syncFilters('month', {month: $('aMonth').value,trainer:'',q:''}); render(); };
+for (const id of ['aSearch','aFolioSearch','aPersonSearch']) if ($(id)) {
+    const applySearch=()=>{clearTimeout(searchTimer);syncFilters('search');render();};
+    $(id).oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(applySearch,180);};
+    $(id).onchange=applySearch;
+}
+$('resetFilters').onclick = () => { clearTimeout(searchTimer); syncFilters('month', {month: $('aMonth').value,trainer:'',q:'',folioQuery:'',personQuery:''}); render(); };
 
 // El informe compartido trae el motor y sus datos dentro del mismo HTML.
 if (window.RechazosShared) {

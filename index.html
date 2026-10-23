@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#100f18">
     <title>Rechazos Lab · Analítica operativa</title>
     <link rel="icon" type="image/svg+xml" href="pumpkin.svg">
-    <link rel="stylesheet" href="styles.css?v=20261023-busqueda">
+    <link rel="stylesheet" href="styles.css?v=20261023-dos-busquedas">
     <link rel="stylesheet" href="halloween.css">
     <link rel="stylesheet" href="visuals.css">
 </head>
@@ -139,9 +139,13 @@
                             <label>Validación de identidad<select id="aAttendanceMatch"></select></label>
                         </div>
 
-                        <label class="search-label" for="aSearch">Buscar en la selección</label>
-                        <input id="aSearch" type="search" placeholder="Folio, promotor, tienda, determinante, responsable o motivo…" autocomplete="off" aria-describedby="searchHelp">
-                        <p id="searchHelp" class="explain">Busca coincidencias parciales, sin distinguir mayúsculas ni acentos, dentro del mes y los filtros activos. Los nombres corresponden a promotores y responsables del tablero.</p>
+                        <div class="search-bars">
+                            <div><label class="search-label" for="aFolioSearch">Buscar folio</label>
+                            <input id="aFolioSearch" type="search" inputmode="numeric" placeholder="Escribe un folio completo o parte de él" autocomplete="off" aria-describedby="searchHelp"></div>
+                            <div><label class="search-label" for="aPersonSearch">Buscar persona</label>
+                            <input id="aPersonSearch" type="search" placeholder="Nombre de promotor, responsable o capacitadora" autocomplete="off" aria-describedby="searchHelp"></div>
+                        </div>
+                        <p id="searchHelp" class="explain">Folio busca únicamente en el número de solicitud. Persona busca en los nombres del equipo, sin distinguir acentos ni mayúsculas. Ambas búsquedas se combinan entre sí y con los filtros activos.</p>
                         <p id="filterContext" class="explain" aria-live="polite"></p>
                         <button id="resetFilters" type="button" title="Restablecer todos los filtros del mes seleccionado">↺ Limpiar filtros</button>
 
@@ -282,9 +286,9 @@
     </main>
 
     <script>window.RechazosFolder = true;</script>
-    <script src="core.js?v=20261023-busqueda" defer></script>
-    <script src="folder-ui.js?v=20261023-busqueda" defer></script>
-    <script src="app.js?v=20261023-busqueda" defer></script>
+    <script src="core.js?v=20261023-dos-busquedas" defer></script>
+    <script src="folder-ui.js?v=20261023-dos-busquedas" defer></script>
+    <script src="app.js?v=20261023-dos-busquedas" defer></script>
 </body>
 
 </html>

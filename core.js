@@ -86,9 +86,19 @@
     if(!searchCache.has(row))searchCache.set(row,norm([...searchable.map(k=>row[k]||''),trainerForRegion(row.region)].join(' ')));
     const haystack=searchCache.get(row);return queryTokens.every(token=>haystack.includes(token));
   }
+  const peopleFields=['promoter','teamLeader','swatLeader','subleader','rh','cpro','bankLink'];
+  const peopleCache=new WeakMap();
+  function scopedSearchMatches(row,filters={}) {
+    const folioQuery=norm(filters.folioQuery);
+    if(folioQuery&&!norm(key(row.folio)).includes(folioQuery))return false;
+    const tokens=norm(filters.personQuery).split(/\s+/).filter(Boolean);
+    if(!tokens.length)return true;
+    if(!peopleCache.has(row))peopleCache.set(row,[...peopleFields.map(k=>norm(row[k])),norm(trainerForRegion(row.region))]);
+    return peopleCache.get(row).some(name=>tokens.every(token=>name.includes(token)));
+  }
   const filterKeys=['trainer','region','store','det','teamLeader','swatLeader','subleader','promoter','employeeRole','rh','cpro','bankLink','attendanceMatch'];
   function matches(row,filters={},except='') {
-    return (!filters.month||row.month===filters.month)&&searchMatches(row,filters.q)&&filterKeys.every(k=>k===except||!filters[k]||fieldValue(row,k)===filters[k]);
+    return (!filters.month||row.month===filters.month)&&searchMatches(row,filters.q)&&scopedSearchMatches(row,filters)&&filterKeys.every(k=>k===except||!filters[k]||fieldValue(row,k)===filters[k]);
   }
   function select(rows,filters={},scope='rejects'){
     const base=rows.filter(r=>matches(r,filters));
@@ -100,7 +110,7 @@
   function facets(rows,filters={},changed='month'){
     const months=[...new Set(rows.map(r=>r.month))].sort();
     const dims=filterKeys.filter(k=>['region','store','det'].includes(k)||rows.some(r=>r[k]!==undefined)||Object.hasOwn(filters,k));
-    const selected={month:months.includes(filters.month)?filters.month:months.at(-1),...Object.fromEntries(dims.map(k=>[k,filters[k]||''])),...(Object.hasOwn(filters,'q')?{q:filters.q||''}:{})};
+    const selected={month:months.includes(filters.month)?filters.month:months.at(-1),...Object.fromEntries(dims.map(k=>[k,filters[k]||''])),...Object.fromEntries(['q','folioQuery','personQuery'].filter(k=>Object.hasOwn(filters,k)).map(k=>[k,filters[k]||'']))};
     const order=dims.includes(changed)?[changed,...dims.filter(k=>k!==changed)]:dims;
     let compatible=rows.filter(r=>r.month===selected.month);
     for(const k of order){
@@ -112,6 +122,6 @@
     for(const k of dims)if(selected[k]&&!options[k].includes(selected[k]))options[k].push(selected[k]);
     return {selected,options};
   }
-  const api={norm,key,date,cut,aliases,required,mapping,reason,build,select,facets,matches,filterKeys,trainerForRegion,fieldValue,searchMatches};
+  const api={norm,key,date,cut,aliases,required,mapping,reason,build,select,facets,matches,filterKeys,trainerForRegion,fieldValue,searchMatches,scopedSearchMatches};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;root.RechazosCore=api;
 })(typeof self!=='undefined'?self:globalThis);
